@@ -16,6 +16,23 @@ export interface RegisterData {
   userType: UserType;
 }
 
+export interface CustomerRegistrationData {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+}
+
+export interface VehicleData {
+  vehicleType: string;
+  plateNumber: string;
+  plateCode: string;
+  countryCode: string;
+  color: string;
+}
+
 export interface AuthUser {
   id: number;
   username: string;
@@ -42,4 +59,11 @@ export interface PasswordReset {
 export interface PasswordChange {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }
