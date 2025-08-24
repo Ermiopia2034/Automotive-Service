@@ -150,6 +150,127 @@ export interface ServiceRequestStatusUpdate {
   mechanicId?: number;
 }
 
+// Vehicle Status Types (Milestone 5)
+export interface VehicleStatusData {
+  serviceRequestId: number;
+  description: string;
+}
+
+export interface VehicleStatus {
+  id: number;
+  serviceRequestId: number;
+  mechanicId: number;
+  description: string;
+  approved: boolean;
+  createdAt: string;
+  mechanic: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string | null;
+  };
+  ongoingServices: OngoingService[];
+  additionalServices: AdditionalService[];
+}
+
+// Ongoing Service Types
+export interface OngoingServiceData {
+  statusId: number;
+  serviceId: number;
+  expectedDate: string;
+  totalPrice: number;
+}
+
+export interface OngoingService {
+  id: number;
+  statusId: number;
+  serviceId: number;
+  expectedDate: string;
+  serviceFinished: boolean;
+  totalPrice: number;
+  service: {
+    id: number;
+    serviceName: string;
+    estimatedPrice: number;
+  };
+}
+
+// Additional Service Types
+export interface AdditionalServiceData {
+  statusId: number;
+  serviceId: number;
+  totalPrice: number;
+}
+
+export interface AdditionalService {
+  id: number;
+  statusId: number;
+  serviceId: number;
+  approved: boolean;
+  totalPrice: number;
+  service: {
+    id: number;
+    serviceName: string;
+    estimatedPrice: number;
+  };
+}
+
+// Notification Types
+export interface NotificationData {
+  receiverId: number;
+  type: string;
+  title: string;
+  message: string;
+}
+
+export interface Notification {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  sender: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
+}
+
+// Service Tracking Updates
+export interface ServiceStatusUpdate {
+  serviceRequestId: number;
+  statusDescription: string;
+  ongoingServices?: OngoingServiceData[];
+  additionalServices?: AdditionalServiceData[];
+}
+
+// Service Completion Types
+export interface ServiceCompletionData {
+  serviceRequestId: number;
+  finalNotes?: string;
+  additionalCharges?: number;
+  discount?: number;
+}
+
+export interface ServiceSummary {
+  serviceRequestId: number;
+  totalOngoingServices: number;
+  totalAdditionalServices: number;
+  additionalCharges: number;
+  discount: number;
+  subtotal: number;
+  finalTotal: number;
+  completedServices: Array<{
+    id: number;
+    serviceName: string;
+    price: number;
+    type: 'ongoing' | 'additional';
+  }>;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;

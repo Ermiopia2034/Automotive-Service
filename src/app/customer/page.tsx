@@ -3,20 +3,26 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { formatDateTime } from '@/utils/common';
-import type { ServiceRequest } from '@/types/auth';
+import type { ServiceRequest, VehicleStatus, Notification } from '@/types/auth';
 
 function CustomerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [successMessage, setSuccessMessage] = useState(searchParams.get('success') || '');
 
+  // Service tracking states
+  const [vehicleStatuses, setVehicleStatuses] = useState<VehicleStatus[]>([]);
+  const [selectedServiceRequest, setSelectedServiceRequest] = useState<number | null>(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+
   const fetchRequests = useCallback(async () => {
-    if (activeTab !== 'requests') return;
+    if (activeTab !== 'requests' && activeTab !== 'tracking') return;
     
     try {
       setLoading(true);
@@ -38,9 +44,42 @@ function CustomerDashboardContent() {
     }
   }, [activeTab]);
 
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const response = await fetch('/api/notifications?limit=20');
+      const result = await response.json();
+
+      if (result.success) {
+        setNotifications(result.data.notifications);
+      }
+    } catch (error) {
+      console.error('Fetch notifications error:', error);
+    }
+  }, []);
+
+  const fetchVehicleStatuses = useCallback(async (serviceRequestId: number) => {
+    try {
+      setTrackingLoading(true);
+      const response = await fetch(`/api/vehicle-status?service_request_id=${serviceRequestId}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setVehicleStatuses(result.data.statuses);
+      } else {
+        setError(result.error || 'Failed to fetch service tracking');
+      }
+    } catch (error) {
+      console.error('Fetch vehicle statuses error:', error);
+      setError('Failed to fetch service tracking');
+    } finally {
+      setTrackingLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchRequests();
-  }, [fetchRequests]);
+    fetchNotifications();
+  }, [fetchRequests, fetchNotifications]);
 
   useEffect(() => {
     if (successMessage) {
@@ -75,6 +114,71 @@ function CustomerDashboardContent() {
     }
   };
 
+  const handleApproveStatusUpdate = async (statusId: number, approved: boolean) => {
+    try {
+      setError('');
+
+      const response = await fetch(`/api/vehicle-status/${statusId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ approved }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && selectedServiceRequest) {
+        await fetchVehicleStatuses(selectedServiceRequest);
+      } else {
+        setError(result.error || 'Failed to update status approval');
+      }
+    } catch (error) {
+      console.error('Approve status error:', error);
+      setError('Failed to update status approval');
+    }
+  };
+
+  const handleApproveAdditionalService = async (serviceId: number, approved: boolean) => {
+    try {
+      setError('');
+
+      const response = await fetch(`/api/additional-services/${serviceId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ approved }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && selectedServiceRequest) {
+        await fetchVehicleStatuses(selectedServiceRequest);
+      } else {
+        setError(result.error || 'Failed to update additional service');
+      }
+    } catch (error) {
+      console.error('Approve additional service error:', error);
+      setError('Failed to update additional service');
+    }
+  };
+
+  const markNotificationsAsRead = async (notificationIds: number[]) => {
+    try {
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationIds }),
+      });
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Mark notifications as read error:', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -104,12 +208,27 @@ function CustomerDashboardContent() {
     return ['PENDING', 'ACCEPTED'].includes(request.status);
   };
 
+  const activeRequests = requests.filter(r => ['ACCEPTED', 'IN_PROGRESS'].includes(r.status));
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Customer Dashboard</h1>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-4">
+            {notifications.filter(n => !n.read).length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => setActiveTab('notifications')}
+                  className="relative bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Notifications
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                </button>
+              </div>
+            )}
             <button
               onClick={() => router.push('/customer/profile')}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -150,26 +269,27 @@ function CustomerDashboardContent() {
           <div className="bg-white shadow rounded-lg mb-6">
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'overview'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Overview
-                </button>
-                <button
-                  onClick={() => setActiveTab('requests')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'requests'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  My Requests
-                </button>
+                {(['overview', 'requests', 'tracking', 'notifications'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === tab
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    {tab === 'overview' && 'Overview'}
+                    {tab === 'requests' && 'My Requests'}
+                    {tab === 'tracking' && 'Service Tracking'}
+                    {tab === 'notifications' && 'Notifications'}
+                    {tab === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                        {notifications.filter(n => !n.read).length}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </nav>
             </div>
 
@@ -179,7 +299,7 @@ function CustomerDashboardContent() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Welcome, Customer!</h2>
                   <p className="text-gray-600 mb-8 text-center">
-                    Manage your profile, vehicles, and request automotive services from nearby garages.
+                    Manage your profile, vehicles, and request automotive services with detailed progress tracking.
                   </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -202,43 +322,45 @@ function CustomerDashboardContent() {
                     </button>
                     
                     <button
+                      onClick={() => setActiveTab('tracking')}
+                      className="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
+                    >
+                      <div className="text-xl mb-2">📊</div>
+                      <div>Track Progress</div>
+                      <div className="text-sm opacity-75 mt-1">Real-time service updates</div>
+                    </button>
+                    
+                    <button
                       onClick={() => setActiveTab('requests')}
                       className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
                     >
                       <div className="text-xl mb-2">📋</div>
                       <div>My Requests</div>
-                      <div className="text-sm opacity-75 mt-1">Track service history</div>
-                    </button>
-                    
-                    <button
-                      onClick={() => router.push('/customer/garages')}
-                      className="bg-orange-600 hover:bg-orange-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
-                    >
-                      <div className="text-xl mb-2">🚗</div>
-                      <div>Quick Request</div>
-                      <div className="text-sm opacity-75 mt-1">Get help now</div>
+                      <div className="text-sm opacity-75 mt-1">Service request history</div>
                     </button>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-blue-900 mb-3">New in Milestone 4: Service Requests! 🎉</h3>
+                    <h3 className="text-lg font-semibold text-blue-900 mb-3">Milestone 5: Advanced Service Tracking! 🚀</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <div className="text-sm text-blue-700 font-medium mb-2">✅ Now Available:</div>
+                        <div className="text-sm text-blue-700 font-medium mb-2">✅ New Features:</div>
                         <ul className="text-sm text-blue-600 space-y-1">
-                          <li>• Request service from any garage</li>
-                          <li>• Track request status in real-time</li>
-                          <li>• Communicate with assigned mechanics</li>
-                          <li>• Cancel requests when needed</li>
+                          <li>• Real-time progress tracking with detailed updates</li>
+                          <li>• Approve/decline mechanic status updates</li>
+                          <li>• Review additional service requests</li>
+                          <li>• Track ongoing services with completion status</li>
+                          <li>• Receive instant notifications</li>
                         </ul>
                       </div>
                       <div>
-                        <div className="text-sm text-blue-700 font-medium mb-2">📱 How it works:</div>
+                        <div className="text-sm text-blue-700 font-medium mb-2">🔧 Enhanced Workflow:</div>
                         <ul className="text-sm text-blue-600 space-y-1">
-                          <li>• Browse garages and their services</li>
-                          <li>• Submit request with your location</li>
-                          <li>• Mechanic accepts and provides updates</li>
-                          <li>• Receive service and rate your experience</li>
+                          <li>• Mechanics provide detailed status updates</li>
+                          <li>• You approve work performed</li>
+                          <li>• Additional services require your approval</li>
+                          <li>• Complete transparency throughout service</li>
+                          <li>• Final pricing and completion confirmation</li>
                         </ul>
                       </div>
                     </div>
@@ -292,6 +414,11 @@ function CustomerDashboardContent() {
                                   Request #{request.id}
                                 </h3>
                                 {getStatusBadge(request.status)}
+                                {['ACCEPTED', 'IN_PROGRESS'].includes(request.status) && (
+                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                    Track Progress Available
+                                  </span>
+                                )}
                               </div>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <div>Garage: {request.garage.garageName}</div>
@@ -303,6 +430,17 @@ function CustomerDashboardContent() {
                               </div>
                             </div>
                             <div className="flex space-x-2">
+                              {['ACCEPTED', 'IN_PROGRESS'].includes(request.status) && (
+                                <button
+                                  onClick={() => {
+                                    setActiveTab('tracking');
+                                    setSelectedServiceRequest(request.id);
+                                  }}
+                                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-md text-sm font-medium"
+                                >
+                                  Track
+                                </button>
+                              )}
                               <button
                                 onClick={() => setSelectedRequest(request)}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
@@ -319,6 +457,140 @@ function CustomerDashboardContent() {
                               )}
                             </div>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Service Tracking Tab */}
+              {activeTab === 'tracking' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900">Real-time Service Tracking</h2>
+                  </div>
+
+                  {activeRequests.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                      <div className="text-6xl mb-4">🔧</div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Services</h3>
+                      <p className="text-gray-600 mb-4">You don&apos;t have any services currently being worked on.</p>
+                      <button
+                        onClick={() => router.push('/customer/garages')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Request Service
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="bg-white shadow rounded-lg p-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select Service Request to Track:
+                        </label>
+                        <select
+                          value={selectedServiceRequest || ''}
+                          onChange={(e) => {
+                            const requestId = parseInt(e.target.value);
+                            setSelectedServiceRequest(requestId);
+                            if (requestId) {
+                              fetchVehicleStatuses(requestId);
+                            }
+                          }}
+                          className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Choose a request to track</option>
+                          {activeRequests.map((request) => (
+                            <option key={request.id} value={request.id}>
+                              Request #{request.id} - {request.garage.garageName} ({request.vehicle.vehicleType})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {selectedServiceRequest && (
+                        <div className="bg-white shadow rounded-lg">
+                          <div className="px-4 py-5 sm:p-6">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">
+                              Service Progress & Updates
+                            </h3>
+                            
+                            {trackingLoading ? (
+                              <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                                <p className="mt-2 text-gray-600">Loading progress...</p>
+                              </div>
+                            ) : vehicleStatuses.length === 0 ? (
+                              <div className="text-center py-8 text-gray-500">
+                                <div className="text-4xl mb-3">⏳</div>
+                                <p>No updates from your mechanic yet.</p>
+                                <p className="text-sm">You&apos;ll see detailed progress updates here once work begins.</p>
+                              </div>
+                            ) : (
+                              <ServiceTrackingTimeline
+                                statuses={vehicleStatuses}
+                                onApproveStatus={handleApproveStatusUpdate}
+                                onApproveAdditionalService={handleApproveAdditionalService}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Notifications Tab */}
+              {activeTab === 'notifications' && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Notifications ({notifications.filter(n => !n.read).length} unread)
+                    </h2>
+                    {notifications.filter(n => !n.read).length > 0 && (
+                      <button
+                        onClick={() => markNotificationsAsRead(notifications.filter(n => !n.read).map(n => n.id))}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Mark All Read
+                      </button>
+                    )}
+                  </div>
+                  
+                  {notifications.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                      <div className="text-4xl mb-4">🔔</div>
+                      <p className="text-gray-600">No notifications yet.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`border rounded-lg p-4 ${
+                            notification.read ? 'bg-gray-50 border-gray-200' : 'bg-blue-50 border-blue-200'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
+                            <span className="text-xs text-gray-500">
+                              {formatDateTime(new Date(notification.createdAt))}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700">{notification.message}</p>
+                          <div className="text-xs text-gray-500 mt-1">
+                            From: {notification.sender.firstName} {notification.sender.lastName}
+                          </div>
+                          {!notification.read && (
+                            <button
+                              onClick={() => markNotificationsAsRead([notification.id])}
+                              className="text-xs text-blue-600 hover:text-blue-500 mt-2"
+                            >
+                              Mark as read
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -380,6 +652,24 @@ function CustomerDashboardContent() {
                       </div>
                     )}
 
+                    {['ACCEPTED', 'IN_PROGRESS'].includes(selectedRequest.status) && (
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-purple-700 font-medium">Track detailed progress</span>
+                          <button
+                            onClick={() => {
+                              setActiveTab('tracking');
+                              setSelectedServiceRequest(selectedRequest.id);
+                              setSelectedRequest(null);
+                            }}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
+                          >
+                            View Progress
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {canCancelRequest(selectedRequest) && (
                       <div className="pt-4 border-t border-gray-200">
                         <button
@@ -397,6 +687,157 @@ function CustomerDashboardContent() {
           )}
         </div>
       </main>
+    </div>
+  );
+}
+
+// Service Tracking Timeline Component
+function ServiceTrackingTimeline({ 
+  statuses, 
+  onApproveStatus, 
+  onApproveAdditionalService 
+}: {
+  statuses: VehicleStatus[];
+  onApproveStatus: (statusId: number, approved: boolean) => void;
+  onApproveAdditionalService: (serviceId: number, approved: boolean) => void;
+}) {
+  return (
+    <div className="space-y-6">
+      {statuses.map((status, index) => (
+        <div key={status.id} className="relative">
+          {/* Timeline line */}
+          {index < statuses.length - 1 && (
+            <div className="absolute left-6 top-12 w-0.5 h-full bg-gray-300"></div>
+          )}
+          
+          <div className="flex items-start space-x-4">
+            {/* Timeline icon */}
+            <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+              status.approved ? 'bg-green-100' : 'bg-yellow-100'
+            }`}>
+              {status.approved ? (
+                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      status.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {status.approved ? 'Approved' : 'Pending Your Approval'}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {formatDateTime(new Date(status.createdAt))}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-gray-900 mb-3">{status.description}</p>
+                
+                {/* Approval buttons */}
+                {!status.approved && (
+                  <div className="flex space-x-2 mb-4">
+                    <button
+                      onClick={() => onApproveStatus(status.id, true)}
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                    >
+                      ✓ Approve Update
+                    </button>
+                    <button
+                      onClick={() => onApproveStatus(status.id, false)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                    >
+                      ✗ Decline
+                    </button>
+                  </div>
+                )}
+
+                {/* Ongoing Services */}
+                {status.ongoingServices.length > 0 && (
+                  <div className="mb-4">
+                    <h5 className="text-sm font-medium text-gray-700 mb-2">Services Being Performed:</h5>
+                    <div className="space-y-2">
+                      {status.ongoingServices.map((service) => (
+                        <div key={service.id} className="bg-blue-50 p-3 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium text-blue-900">{service.service.serviceName}</div>
+                              <div className="text-sm text-blue-700">
+                                Expected: {new Date(service.expectedDate).toLocaleDateString()} • ${service.totalPrice}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {service.serviceFinished ? (
+                                <span className="text-green-600 font-medium text-sm">✓ Completed</span>
+                              ) : (
+                                <span className="text-blue-600 font-medium text-sm">🔄 In Progress</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Services */}
+                {status.additionalServices.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-medium text-gray-700 mb-2">Additional Service Requests:</h5>
+                    <div className="space-y-2">
+                      {status.additionalServices.map((service) => (
+                        <div key={service.id} className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <div className="font-medium text-orange-900">{service.service.serviceName}</div>
+                              <div className="text-sm text-orange-700">
+                                Additional cost: ${service.totalPrice}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {!service.approved && (
+                            <div className="flex space-x-2 mt-3">
+                              <button
+                                onClick={() => onApproveAdditionalService(service.id, true)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                              >
+                                ✓ Approve (${service.totalPrice})
+                              </button>
+                              <button
+                                onClick={() => onApproveAdditionalService(service.id, false)}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                              >
+                                ✗ Decline
+                              </button>
+                            </div>
+                          )}
+
+                          {service.approved && (
+                            <div className="mt-2">
+                              <span className="text-green-600 font-medium text-sm">✓ Approved by you</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

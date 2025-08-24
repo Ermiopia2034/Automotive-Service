@@ -47,6 +47,10 @@ The database schema supports a multi-role system with the following core entitie
 - `Application`: Business application system for garage and mechanic registrations
 - `Service`: Available automotive services
 - `ServiceRequest`: Customer service requests and appointments
+- `VehicleStatus`: Real-time service progress tracking with detailed updates
+- `OngoingService`: Active services being performed with completion tracking
+- `AdditionalService`: Extra services requested during service delivery
+- `Notification`: Real-time communication system between users
 
 ### Database Patterns
 - All tables use auto-incrementing integer primary keys
@@ -120,6 +124,28 @@ All API endpoints follow RESTful conventions under `/api/` directory:
 └── [id]/services/   # Garage-specific service management
     ├── route        # Add/list garage services
     └── [serviceId]/ # Individual garage service operations
+
+/api/requests/        # Service request management
+├── route            # Create/list service requests with role-based filtering
+└── [id]/           # Individual request operations and status updates
+
+/api/vehicle-status/  # Advanced service tracking
+├── route            # Create/list vehicle status updates
+└── [id]/           # Status approval and management
+
+/api/ongoing-services/ # Service execution tracking
+├── route            # Add/list ongoing services
+└── [id]/           # Complete/remove individual services
+
+/api/additional-services/ # Additional service workflow
+├── route            # Request additional services
+└── [id]/           # Approve/decline additional services
+
+/api/notifications/   # Real-time communication system
+├── route            # List/mark notifications as read
+
+/api/service-completion/ # Service completion and pricing
+├── route            # Complete services with final calculations
 ```
 
 ### API Patterns
@@ -225,6 +251,14 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Service Browsing**: View available services, pricing, and garage details per location
 - **Distance & Travel Time**: Real-time calculations with estimated travel duration
 
+### Advanced Service Tracking Interfaces
+- **Mechanic Service Dashboard**: Comprehensive service tracking with real-time status updates, ongoing service management, and completion workflows
+- **Customer Progress Tracking**: Real-time service timeline with status updates, additional service approvals, and completion notifications
+- **Garage Admin Service Oversight**: Complete service monitoring with status tracking across all active services
+- **Service Completion Interface**: Final pricing calculations, service summaries, and invoice generation
+- **Notification System**: Real-time communication between mechanics, customers, and administrators
+- **Additional Service Workflow**: Customer approval system for services discovered during delivery
+
 ### UI Patterns
 - Tailwind CSS utility classes for consistent styling
 - Responsive design patterns for mobile compatibility
@@ -280,7 +314,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ---
 
-## Current Implementation Status (Milestone 3)
+## Current Implementation Status (Milestone 4)
 
 ### Functional Features
 - **User Registration**: Customer self-registration with profile management
@@ -293,6 +327,15 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Garage Service Assignment**: Garage-specific service portfolio management
 - **Location-Based Discovery**: GPS-integrated garage finder with distance calculations
 - **Advanced Search & Filtering**: Multi-criteria garage discovery with real-time filtering
+- **Service Request System**: Complete assistance request workflow with customer location capture and mechanic assignment
+- **Request Status Management**: Real-time request tracking with status transitions (PENDING → ACCEPTED → IN_PROGRESS → COMPLETED)
+- **Role-Based Request Dashboards**: Specialized interfaces for customers, mechanics, and garage administrators
+- **Request Communication Workflow**: Status updates and notifications between customers and service providers
+- **Advanced Service Tracking**: Real-time service progress updates with detailed status tracking
+- **Ongoing Service Management**: Active service tracking with completion dates and progress monitoring
+- **Additional Service Workflow**: Customer approval system for services discovered during delivery
+- **Real-time Communication**: Comprehensive notification system for all stakeholders
+- **Service Completion System**: Final pricing calculations with detailed service summaries and invoicing
 
 ### API Endpoints Available
 - Customer registration and profile management
@@ -303,13 +346,24 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Service catalog management with pricing controls
 - Garage-service assignment and availability management
 - Location-based garage discovery with distance filtering
+- Service request creation, management, and status tracking
+- Role-based service request access control and filtering
+- Mechanic request acceptance and status updates
+- Administrative request oversight and monitoring
+- Vehicle status tracking with real-time updates
+- Ongoing service management with completion tracking
+- Additional service request and approval workflows
+- Comprehensive notification system with read status
+- Service completion with final pricing calculations
 
 ### User Workflows Implemented
-1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing
-2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Service Portfolio Setup → Mechanic Recruitment
-3. **Mechanic Journey**: Application → Garage Admin Approval → Account Activation
-4. **Admin Journey**: Application Review → Approval/Rejection → User Management → Service Catalog Management
+1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing → Service Request Creation → Request Status Tracking → Service Progress Updates → Additional Service Approval → Service Completion
+2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Service Portfolio Setup → Mechanic Recruitment → Request Oversight → Service Monitoring
+3. **Mechanic Journey**: Application → Garage Admin Approval → Account Activation → Request Acceptance → Service Delivery → Status Updates → Service Completion
+4. **Admin Journey**: Application Review → Approval/Rejection → User Management → Service Catalog Management → System Oversight
 5. **Service Management**: System Admin Creates Services → Garage Admin Assigns to Garage → Customer Discovers Services
+6. **Service Request Flow**: Customer Location Capture → Garage Selection → Request Submission → Mechanic Assignment → Status Updates → Service Completion
+7. **Advanced Service Tracking**: Service Request → Mechanic Assignment → Real-time Status Updates → Ongoing Service Management → Additional Service Requests → Customer Approvals → Service Completion → Final Pricing
 
 ---
 
