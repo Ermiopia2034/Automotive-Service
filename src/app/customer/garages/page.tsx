@@ -426,8 +426,19 @@ export default function CustomerGarages() {
                     )}
 
                     <div className="pt-4 border-t border-gray-200">
-                      <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
-                        <strong>Coming in Milestone 4:</strong> Request service, book appointments, and track service status directly from garage details.
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-600">
+                          Ready to request service from this garage?
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedGarage(null);
+                            router.push(`/customer/request-service?garage_id=${selectedGarage.id}`);
+                          }}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                        >
+                          Request Service
+                        </button>
                       </div>
                     </div>
                   </div>

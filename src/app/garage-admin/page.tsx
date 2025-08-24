@@ -37,7 +37,7 @@ export default function GarageAdminDashboard() {
       </header>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Mechanic Applications */}
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-5">
@@ -130,27 +130,60 @@ export default function GarageAdminDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Service Requests */}
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Service Requests</dt>
+                      <dd className="text-lg font-medium text-gray-900">Monitor</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3">
+                <div className="text-sm">
+                  <button
+                    onClick={() => router.push('/garage-admin/requests')}
+                    className="font-medium text-blue-600 hover:text-blue-500"
+                  >
+                    View all requests
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-8 bg-orange-50 border border-orange-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-orange-900 mb-2">Milestone 3 Features - Service Management</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-orange-800">
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-blue-900 mb-2">Milestone 4 Features - Service Request Management 🎉</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
               <div>
-                <strong>✅ Active Features:</strong>
+                <strong>✅ Now Active:</strong>
                 <ul className="mt-2 space-y-1">
-                  <li>• Review mechanic applications</li>
-                  <li>• Manage garage profile</li>
-                  <li>• Manage garage services</li>
-                  <li>• Service availability toggle</li>
+                  <li>• Monitor all garage service requests</li>
+                  <li>• Assign mechanics to requests</li>
+                  <li>• Track request status in real-time</li>
+                  <li>• Manage mechanic applications</li>
+                  <li>• Control garage service portfolio</li>
                 </ul>
               </div>
               <div>
-                <strong>🔄 Coming Next:</strong>
+                <strong>📊 Previous Features:</strong>
                 <ul className="mt-2 space-y-1">
-                  <li>• Service request handling</li>
-                  <li>• Mechanic performance</li>
-                  <li>• Customer communications</li>
-                  <li>• Service tracking</li>
+                  <li>• ✓ Review mechanic applications</li>
+                  <li>• ✓ Manage garage profile & location</li>
+                  <li>• ✓ Manage garage services</li>
+                  <li>• ✓ Service availability toggle</li>
+                  <li>• ✓ GPS location services</li>
                 </ul>
               </div>
             </div>

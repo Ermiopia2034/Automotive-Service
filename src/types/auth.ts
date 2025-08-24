@@ -96,6 +96,60 @@ export interface PasswordChange {
   newPassword: string;
 }
 
+// Service Request Types
+export interface ServiceRequestData {
+  garageId: number;
+  vehicleId: number;
+  latitude: number;
+  longitude: number;
+  description?: string;
+}
+
+export interface ServiceRequest {
+  id: number;
+  customerId: number;
+  garageId: number;
+  mechanicId?: number | null;
+  vehicleId: number;
+  latitude: number;
+  longitude: number;
+  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  createdAt: string;
+  customer: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string | null;
+  };
+  garage: {
+    id: number;
+    garageName: string;
+    latitude: number;
+    longitude: number;
+  };
+  mechanic?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string | null;
+  } | null;
+  vehicle: {
+    id: number;
+    vehicleType: string;
+    plateNumber: string;
+    plateCode: string;
+    countryCode: string;
+    color: string;
+  };
+  distance?: number;
+}
+
+export interface ServiceRequestStatusUpdate {
+  status: 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  mechanicId?: number;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;

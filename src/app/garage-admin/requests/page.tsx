@@ -5,15 +5,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { formatDateTime } from '@/utils/common';
 import type { ServiceRequest } from '@/types/auth';
 
-export default function MechanicDashboard() {
+export default function GarageAdminRequests() {
   const router = useRouter();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
@@ -44,37 +42,6 @@ export default function MechanicDashboard() {
     fetchRequests();
   }, [fetchRequests]);
 
-  const handleStatusUpdate = async (requestId: number, newStatus: string) => {
-    try {
-      setUpdatingStatus(true);
-      setError('');
-
-      const response = await fetch(`/api/requests/${requestId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: newStatus
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Refresh the requests list
-        await fetchRequests();
-        setSelectedRequest(null);
-      } else {
-        setError(result.error || 'Failed to update request status');
-      }
-    } catch (error) {
-      console.error('Status update error:', error);
-      setError('Failed to update request status');
-    } finally {
-      setUpdatingStatus(false);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -101,19 +68,24 @@ export default function MechanicDashboard() {
     );
   };
 
-  const canAcceptRequest = (request: ServiceRequest) => {
-    return request.status === 'PENDING';
-  };
-
-  const canUpdateRequest = (request: ServiceRequest) => {
-    return request.mechanicId && request.status !== 'COMPLETED' && request.status !== 'CANCELLED';
+  const getStatusCount = (status: string) => {
+    if (status === 'all') return requests.length;
+    return requests.filter(r => r.status === status).length;
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Mechanic Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => router.push('/garage-admin')}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              ← Back to Dashboard
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900">Service Requests</h1>
+          </div>
           <div className="flex space-x-2">
             <button
               onClick={() => router.push('/auth/change-password')}
@@ -139,51 +111,53 @@ export default function MechanicDashboard() {
             </div>
           )}
 
-          {/* Status Filter */}
-          <div className="mb-6 bg-white shadow rounded-lg p-4">
-            <div className="flex items-center space-x-4">
-              <label htmlFor="status-filter" className="text-sm font-medium text-gray-700">
-                Filter by Status:
-              </label>
-              <select
-                id="status-filter"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          {/* Status Summary Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+            {['all', 'PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'].map((status) => (
+              <div
+                key={status}
+                className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-colors ${
+                  statusFilter === status ? 'ring-2 ring-blue-500' : 'hover:bg-gray-50'
+                }`}
+                onClick={() => setStatusFilter(status)}
               >
-                <option value="all">All Requests</option>
-                <option value="PENDING">Pending</option>
-                <option value="ACCEPTED">Accepted</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-            </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">{getStatusCount(status)}</div>
+                  <div className="text-sm text-gray-600">
+                    {status === 'all' ? 'All' : status.replace('_', ' ')}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Service Requests */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Service Requests ({requests.length} found)
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {statusFilter === 'all' ? 'All Service Requests' : `${statusFilter.replace('_', ' ')} Requests`} 
+                  ({requests.filter(r => statusFilter === 'all' || r.status === statusFilter).length} found)
+                </h3>
+              </div>
               
               {loading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
                   <p className="mt-2 text-gray-600">Loading requests...</p>
                 </div>
-              ) : requests.length === 0 ? (
+              ) : requests.filter(r => statusFilter === 'all' || r.status === statusFilter).length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  <p className="mt-2">No service requests found.</p>
-                  <p className="text-sm">Requests from your garage will appear here.</p>
+                  <p className="mt-2">No {statusFilter === 'all' ? '' : statusFilter.toLowerCase()} requests found.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {requests.map((request) => (
+                  {requests
+                    .filter(r => statusFilter === 'all' || r.status === statusFilter)
+                    .map((request) => (
                     <div
                       key={request.id}
                       className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -206,15 +180,6 @@ export default function MechanicDashboard() {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          {canAcceptRequest(request) && (
-                            <button
-                              onClick={() => handleStatusUpdate(request.id, 'ACCEPTED')}
-                              disabled={updatingStatus}
-                              className="bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white px-3 py-1 rounded-md text-sm font-medium"
-                            >
-                              Accept
-                            </button>
-                          )}
                           <button
                             onClick={() => setSelectedRequest(request)}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
@@ -287,53 +252,29 @@ export default function MechanicDashboard() {
                       </div>
                     )}
 
-                    {/* Status Update Actions */}
-                    {canUpdateRequest(selectedRequest) && (
-                      <div className="pt-4 border-t border-gray-200">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Update Status</h4>
-                        <div className="flex space-x-2">
-                          {selectedRequest.status === 'ACCEPTED' && (
-                            <button
-                              onClick={() => handleStatusUpdate(selectedRequest.id, 'IN_PROGRESS')}
-                              disabled={updatingStatus}
-                              className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-3 py-1 rounded-md text-sm font-medium"
-                            >
-                              Start Work
-                            </button>
-                          )}
-                          {selectedRequest.status === 'IN_PROGRESS' && (
-                            <button
-                              onClick={() => handleStatusUpdate(selectedRequest.id, 'COMPLETED')}
-                              disabled={updatingStatus}
-                              className="bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white px-3 py-1 rounded-md text-sm font-medium"
-                            >
-                              Mark Complete
-                            </button>
-                          )}
-                          {['ACCEPTED', 'IN_PROGRESS'].includes(selectedRequest.status) && (
-                            <button
-                              onClick={() => handleStatusUpdate(selectedRequest.id, 'CANCELLED')}
-                              disabled={updatingStatus}
-                              className="bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-3 py-1 rounded-md text-sm font-medium"
-                            >
-                              Cancel
-                            </button>
-                          )}
+                    {/* Admin Status Update Actions */}
+                    <div className="pt-4 border-t border-gray-200">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Admin Actions</h4>
+                      <div className="text-sm text-gray-600 mb-3">
+                        As a garage admin, you can monitor and oversee all requests. Mechanics can accept and update their assigned requests directly.
+                      </div>
+                      
+                      {['ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'].includes(selectedRequest.status) && (
+                        <div className="bg-gray-50 rounded p-3">
+                          <div className="text-sm text-gray-600">
+                            This request is currently being handled by the assigned mechanic or has been completed.
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {canAcceptRequest(selectedRequest) && (
-                      <div className="pt-4 border-t border-gray-200">
-                        <button
-                          onClick={() => handleStatusUpdate(selectedRequest.id, 'ACCEPTED')}
-                          disabled={updatingStatus}
-                          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white px-4 py-2 rounded-md font-medium"
-                        >
-                          {updatingStatus ? 'Accepting...' : 'Accept Request'}
-                        </button>
-                      </div>
-                    )}
+                      {selectedRequest.status === 'PENDING' && (
+                        <div className="bg-yellow-50 rounded p-3">
+                          <div className="text-sm text-yellow-800">
+                            This request is waiting for a mechanic to accept it. Your mechanics can accept it directly from their dashboard.
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
