@@ -10,7 +10,7 @@ export default function GarageAdminDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'oversight' | 'notifications'>('overview');
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [vehicleStatuses, setVehicleStatuses] = useState<VehicleStatus[]>([]);
@@ -218,7 +218,7 @@ export default function GarageAdminDashboard() {
               </div>
 
               {/* Management Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                 {/* Mechanic Applications */}
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="p-5">
@@ -232,7 +232,7 @@ export default function GarageAdminDashboard() {
                       </div>
                       <div className="ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">Mechanic Applications</dt>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Applications</dt>
                           <dd className="text-lg font-medium text-gray-900">Review</dd>
                         </dl>
                       </div>
@@ -245,6 +245,37 @@ export default function GarageAdminDashboard() {
                         className="font-medium text-purple-600 hover:text-purple-500"
                       >
                         Manage applications
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mechanic Performance */}
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
+                          <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Mechanics</dt>
+                          <dd className="text-lg font-medium text-gray-900">Performance</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-5 py-3">
+                    <div className="text-sm">
+                      <button
+                        onClick={() => router.push('/garage-admin/mechanics')}
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                      >
+                        Manage mechanics
                       </button>
                     </div>
                   </div>
@@ -342,29 +373,60 @@ export default function GarageAdminDashboard() {
                     </div>
                   </div>
                 </div>
+
+                {/* Analytics */}
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
+                          <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Analytics</dt>
+                          <dd className="text-lg font-medium text-gray-900">Reports</dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-5 py-3">
+                    <div className="text-sm">
+                      <button
+                        onClick={() => router.push('/garage-admin/analytics')}
+                        className="font-medium text-yellow-600 hover:text-yellow-500"
+                      >
+                        View garage analytics
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">Milestone 5: Advanced Service Oversight! 🚀</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+              <div className="mt-8 bg-indigo-50 border border-indigo-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-indigo-900 mb-3">🚀 Milestone 7: Advanced Mechanic Management!</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-indigo-800">
                   <div>
-                    <strong>🆕 New Oversight Features:</strong>
+                    <strong>🆕 New Management Features:</strong>
                     <ul className="mt-2 space-y-1">
-                      <li>• Real-time service tracking oversight</li>
-                      <li>• Monitor mechanic status updates</li>
-                      <li>• Review customer approvals/declines</li>
-                      <li>• Track ongoing and additional services</li>
-                      <li>• Service completion workflow monitoring</li>
+                      <li>• Comprehensive mechanic performance tracking</li>
+                      <li>• Performance grading system (A+ to D)</li>
+                      <li>• Customer satisfaction metrics</li>
+                      <li>• Real-time activity monitoring</li>
+                      <li>• Advanced review & approval system</li>
                     </ul>
                   </div>
                   <div>
-                    <strong>📊 Previous Features:</strong>
+                    <strong>📊 Enhanced Capabilities:</strong>
                     <ul className="mt-2 space-y-1">
-                      <li>• ✓ Review mechanic applications</li>
-                      <li>• ✓ Manage garage profile & location</li>
-                      <li>• ✓ Manage garage services portfolio</li>
-                      <li>• ✓ Monitor service requests</li>
-                      <li>• ✓ Service availability controls</li>
+                      <li>• ✓ Service completion rate tracking</li>
+                      <li>• ✓ Customer rating aggregation</li>
+                      <li>• ✓ Recent activity analysis (30 days)</li>
+                      <li>• ✓ Bulk mechanic status management</li>
+                      <li>• ✓ Performance-based reviews</li>
                     </ul>
                   </div>
                 </div>

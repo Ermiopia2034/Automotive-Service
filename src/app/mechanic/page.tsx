@@ -5,6 +5,51 @@ import { useState, useEffect, useCallback } from 'react';
 import { formatDateTime } from '@/utils/common';
 import type { ServiceRequest, VehicleStatus, Notification, ServiceSummary, ServiceCompletionData } from '@/types/auth';
 
+// Performance data types
+interface PerformanceOverview {
+  totalRequests: number;
+  completedRequests: number;
+  inProgressRequests: number;
+  pendingRequests: number;
+  completionRate: number;
+  averageRating: number;
+  averageCompletionTime: number;
+}
+
+interface GarageInfo {
+  id: number;
+  name: string;
+}
+
+interface RatingInfo {
+  rating: number;
+  comment: string | null;
+  customerName: string;
+  date: Date;
+}
+
+interface DailyPerformance {
+  date: string;
+  completed: number;
+  accepted: number;
+}
+
+interface RecentActivity {
+  id: number;
+  status: string;
+  customer: string;
+  vehicle: string;
+  createdAt: Date;
+}
+
+interface PerformanceData {
+  overview: PerformanceOverview;
+  garage: GarageInfo | null;
+  ratings: RatingInfo[];
+  dailyPerformance: DailyPerformance[];
+  recentActivity: RecentActivity[];
+}
+
 export default function MechanicDashboard() {
   const router = useRouter();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
@@ -13,8 +58,13 @@ export default function MechanicDashboard() {
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
-  const [activeTab, setActiveTab] = useState<'requests' | 'tracking' | 'notifications'>('requests');
+  const [activeTab, setActiveTab] = useState<'requests' | 'tracking' | 'notifications' | 'performance'>('requests');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  
+  // Performance tracking states
+  const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
+  const [performanceLoading, setPerformanceLoading] = useState(false);
+  const [performanceTimeframe, setPerformanceTimeframe] = useState('30');
 
   // Service tracking states
   const [vehicleStatuses, setVehicleStatuses] = useState<VehicleStatus[]>([]);
@@ -97,6 +147,36 @@ export default function MechanicDashboard() {
       console.error('Fetch services error:', error);
     }
   }, []);
+
+  const fetchPerformanceData = useCallback(async () => {
+    try {
+      setPerformanceLoading(true);
+      setError('');
+      
+      const params = new URLSearchParams();
+      params.append('timeframe', performanceTimeframe);
+
+      const response = await fetch(`/api/mechanic/performance?${params.toString()}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setPerformanceData(result.data);
+      } else {
+        setError(result.error || 'Failed to fetch performance data');
+      }
+    } catch (error) {
+      console.error('Fetch performance error:', error);
+      setError('Failed to fetch performance data');
+    } finally {
+      setPerformanceLoading(false);
+    }
+  }, [performanceTimeframe]);
+
+  useEffect(() => {
+    if (activeTab === 'performance') {
+      fetchPerformanceData();
+    }
+  }, [activeTab, fetchPerformanceData]);
 
   useEffect(() => {
     fetchRequests();
@@ -388,7 +468,7 @@ export default function MechanicDashboard() {
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="-mb-px flex space-x-8">
-            {(['requests', 'tracking', 'notifications'] as const).map((tab) => (
+            {(['requests', 'tracking', 'notifications', 'performance'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -401,6 +481,7 @@ export default function MechanicDashboard() {
                 {tab === 'requests' && 'Service Requests'}
                 {tab === 'tracking' && 'Service Tracking'}
                 {tab === 'notifications' && 'Notifications'}
+                {tab === 'performance' && 'My Performance'}
                 {tab === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
                   <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
                     {notifications.filter(n => !n.read).length}
@@ -723,6 +804,157 @@ export default function MechanicDashboard() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Performance Tab */}
+          {activeTab === 'performance' && (
+            <div className="space-y-6">
+              {/* Performance Overview */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-medium text-gray-900">Performance Overview</h3>
+                  <select
+                    value={performanceTimeframe}
+                    onChange={(e) => setPerformanceTimeframe(e.target.value)}
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="7">Last 7 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                  </select>
+                </div>
+
+                {performanceLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading performance data...</p>
+                  </div>
+                ) : performanceData ? (
+                  <>
+                    {/* Key Metrics */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                      <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                        <div className="text-center">
+                          <p className="text-blue-600 text-sm font-medium">Total Requests</p>
+                          <p className="text-2xl font-bold text-gray-900">{performanceData.overview.totalRequests}</p>
+                        </div>
+                      </div>
+                      <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+                        <div className="text-center">
+                          <p className="text-green-600 text-sm font-medium">Completed</p>
+                          <p className="text-2xl font-bold text-gray-900">{performanceData.overview.completedRequests}</p>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                        <div className="text-center">
+                          <p className="text-yellow-600 text-sm font-medium">Completion Rate</p>
+                          <p className="text-2xl font-bold text-gray-900">{performanceData.overview.completionRate}%</p>
+                        </div>
+                      </div>
+                      <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                        <div className="text-center">
+                          <p className="text-purple-600 text-sm font-medium">Avg Rating</p>
+                          <p className="text-2xl font-bold text-gray-900">{performanceData.overview.averageRating}/10</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Current Status */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                      <div className="bg-white border border-gray-200 p-4 rounded-lg">
+                        <div className="text-center">
+                          <p className="text-gray-600 text-sm">In Progress</p>
+                          <p className="text-2xl font-bold text-blue-600">{performanceData.overview.inProgressRequests}</p>
+                        </div>
+                      </div>
+                      <div className="bg-white border border-gray-200 p-4 rounded-lg">
+                        <div className="text-center">
+                          <p className="text-gray-600 text-sm">Pending</p>
+                          <p className="text-2xl font-bold text-yellow-600">{performanceData.overview.pendingRequests}</p>
+                        </div>
+                      </div>
+                      <div className="bg-white border border-gray-200 p-4 rounded-lg">
+                        <div className="text-center">
+                          <p className="text-gray-600 text-sm">Avg Completion Time</p>
+                          <p className="text-2xl font-bold text-gray-600">{performanceData.overview.averageCompletionTime}h</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Garage Information */}
+                    {performanceData.garage && (
+                      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-8">
+                        <h4 className="text-lg font-semibold text-indigo-900 mb-2">🏢 Working at</h4>
+                        <p className="text-indigo-700 font-medium">{performanceData.garage.name}</p>
+                      </div>
+                    )}
+
+                    {/* Daily Performance Chart */}
+                    <div className="bg-gray-50 p-6 rounded-lg mb-8">
+                      <h4 className="text-md font-medium text-gray-900 mb-4">Daily Performance (Last 7 Days)</h4>
+                      <div className="space-y-3">
+                        {performanceData.dailyPerformance.map((day: DailyPerformance) => (
+                          <div key={day.date} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 w-20">{new Date(day.date).toLocaleDateString()}</span>
+                            <div className="flex space-x-4 flex-1 justify-end">
+                              <span className="text-blue-600">{day.accepted} accepted</span>
+                              <span className="text-green-600">{day.completed} completed</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Recent Activity */}
+                    <div className="bg-white border border-gray-200 rounded-lg">
+                      <div className="px-6 py-4 border-b border-gray-200">
+                        <h4 className="text-md font-medium text-gray-900">Recent Activity</h4>
+                      </div>
+                      <div className="divide-y divide-gray-200">
+                        {performanceData.recentActivity.length === 0 ? (
+                          <div className="px-6 py-8 text-center text-gray-500">
+                            <p>No recent activity found.</p>
+                          </div>
+                        ) : (
+                          performanceData.recentActivity.map((activity: RecentActivity) => (
+                            <div key={activity.id} className="px-6 py-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-3">
+                                    <span className="text-sm font-medium text-gray-900">
+                                      Request #{activity.id}
+                                    </span>
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      activity.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                                      activity.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                      activity.status === 'ACCEPTED' ? 'bg-yellow-100 text-yellow-800' :
+                                      'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {activity.status}
+                                    </span>
+                                  </div>
+                                  <div className="text-sm text-gray-600 mt-1">
+                                    <div>Customer: {activity.customer}</div>
+                                    <div>Vehicle: {activity.vehicle}</div>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {formatDateTime(new Date(activity.createdAt))}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    <p>No performance data available.</p>
                   </div>
                 )}
               </div>

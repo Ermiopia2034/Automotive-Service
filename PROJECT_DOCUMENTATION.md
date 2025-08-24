@@ -146,6 +146,16 @@ All API endpoints follow RESTful conventions under `/api/` directory:
 
 /api/service-completion/ # Service completion and pricing
 ├── route            # Complete services with final calculations
+
+/api/admin/          # Administrative API endpoints
+├── users/           # User management APIs
+├── garages/         # Garage control and management APIs
+├── ratings/         # User feedback and rating management APIs
+├── analytics/       # System-wide analytics and reporting APIs
+└── mechanic-performance/ # Mechanic performance tracking APIs
+
+/api/mechanic/       # Mechanic-specific APIs
+└── performance/     # Individual mechanic performance metrics
 ```
 
 ### API Patterns
@@ -187,10 +197,16 @@ src/
 │   │   └── profile/       # Customer profile management
 │   ├── garage-admin/      # Garage admin dashboard
 │   │   ├── applications/  # Mechanic application reviews
+│   │   ├── mechanics/     # Advanced mechanic management
+│   │   ├── analytics/     # Garage analytics dashboard
 │   │   └── profile/       # Garage profile management
 │   ├── system-admin/      # System admin dashboard
-│   │   └── applications/  # Application management interface
-│   ├── mechanic/          # Mechanic dashboard
+│   │   ├── applications/  # Application management interface
+│   │   ├── users/         # User management system
+│   │   ├── garages/       # Garage management system
+│   │   ├── feedback/      # User feedback monitoring
+│   │   └── analytics/     # System analytics dashboard
+│   ├── mechanic/          # Mechanic dashboard with performance tracking
 │   └── globals.css        # Global styles
 ├── lib/                   # Shared libraries
 │   ├── auth.ts           # NextAuth configuration
@@ -262,6 +278,15 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Notification System**: Real-time communication between mechanics, customers, and administrators
 - **Additional Service Workflow**: Customer approval system for services discovered during delivery
 
+### Administrative Dashboard Interfaces
+- **System Admin User Management**: Advanced user search, filtering, pagination with bulk operations for role changes and status updates
+- **System Admin Garage Management**: Garage approval/removal workflows with performance metrics and bulk operations
+- **System Admin Feedback Monitoring**: Rating distribution analysis, content moderation, and bulk rating management
+- **System Admin Analytics Dashboard**: System-wide KPIs, performance metrics, trend analysis, and real-time monitoring
+- **Garage Admin Mechanic Management**: Performance grading system (A+ to D), completion rates, customer satisfaction tracking
+- **Garage Admin Analytics Dashboard**: Garage-specific metrics, service analytics, mechanic performance comparisons
+- **Mechanic Performance Dashboard**: Personal performance metrics, completion rates, customer ratings, daily activity tracking
+
 ### UI Patterns
 - Tailwind CSS utility classes for consistent styling
 - Responsive design patterns for mobile compatibility
@@ -317,7 +342,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ---
 
-## Current Implementation Status (Milestone 6)
+## Current Implementation Status (Milestone 7)
 
 ### Functional Features
 - **User Registration**: Customer self-registration with profile management
@@ -339,6 +364,9 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Additional Service Workflow**: Customer approval system for services discovered during delivery
 - **Comprehensive Notification System**: Real-time notification delivery with standardized templates and read status management
 - **Service Completion System**: Final pricing calculations with detailed service summaries and invoicing
+- **Advanced Admin Dashboards**: System admin user/garage management, feedback monitoring, system analytics
+- **Performance Management System**: Multi-level performance tracking with grading, analytics, and personal metrics
+- **Comprehensive Analytics Platform**: System-wide, garage-specific, and individual performance analytics
 
 ### API Endpoints Available
 - Customer registration and profile management
@@ -358,6 +386,9 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Additional service request and approval workflows
 - Comprehensive notification system with standardized templates, CRUD operations, and real-time delivery
 - Service completion with final pricing calculations
+- Administrative APIs for user management, garage control, feedback monitoring, and analytics
+- Mechanic performance APIs for individual and collective performance tracking
+- Advanced analytics APIs for system-wide and role-specific metrics
 
 ### User Workflows Implemented
 1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing → Service Request Creation → Request Status Tracking → Service Progress Updates → Additional Service Approval → Service Completion
@@ -368,6 +399,36 @@ Each role has dedicated dashboard pages following a consistent structure:
 6. **Service Request Flow**: Customer Location Capture → Garage Selection → Request Submission → Mechanic Assignment → Status Updates → Service Completion
 7. **Advanced Service Tracking**: Service Request → Mechanic Assignment → Real-time Status Updates → Ongoing Service Management → Additional Service Requests → Customer Approvals → Service Completion → Final Pricing
 8. **Notification System**: Automated notification delivery across all service workflows with standardized templates and real-time updates
+9. **Admin Management Workflows**:
+   - **System Admin**: User Management → Role Assignment → Garage Oversight → Performance Analytics → Feedback Moderation
+   - **Garage Admin**: Mechanic Performance Review → Service Analytics → Team Management → Performance Grading
+   - **Mechanic**: Personal Performance Tracking → Goal Monitoring → Activity Analysis → Rating Management
+
+## Administrative System Architecture
+
+### Admin Dashboard Features
+The system implements comprehensive administrative interfaces with role-based management capabilities:
+
+**System Admin Capabilities:**
+- **User Management**: Advanced search, filtering, pagination with bulk role changes and status updates
+- **Garage Control**: Approval workflows, removal processes, performance tracking, and bulk operations
+- **Feedback Monitoring**: Rating analysis, content moderation, bulk management, and trend tracking
+- **System Analytics**: Real-time KPIs, performance metrics, growth analysis, and system health monitoring
+
+**Garage Admin Capabilities:**
+- **Mechanic Management**: Performance grading (A+ to D), completion rate tracking, customer satisfaction analysis
+- **Service Analytics**: Garage-specific metrics, service request analysis, efficiency tracking
+- **Team Oversight**: Bulk mechanic operations, performance comparisons, activity monitoring
+
+**Mechanic Capabilities:**
+- **Performance Dashboard**: Personal metrics, completion rates, customer ratings, goal tracking
+- **Activity Analysis**: Daily performance charts, recent activity monitoring, benchmark comparisons
+
+### Performance Management System
+- **Multi-Level Analytics**: System-wide, garage-specific, and individual performance tracking
+- **Automated Grading**: Performance calculations with grade assignments and trend analysis
+- **Real-Time Monitoring**: Live performance updates with dashboard refresh capabilities
+- **Comprehensive Reporting**: Detailed analytics across all administrative levels
 
 ## Notification System Architecture
 
