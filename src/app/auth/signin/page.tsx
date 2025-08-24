@@ -150,13 +150,42 @@ export default function SignInPage() {
           </div>
 
           <div className="text-center space-y-4">
-            <div className="text-sm">
-              <Link
-                href="/auth/forgot-password"
-                className="text-indigo-600 hover:text-indigo-500"
-              >
-                Forgot your password?
-              </Link>
+            <div className="text-sm space-y-2">
+              <div>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-indigo-600 hover:text-indigo-500"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <div>
+                <span className="text-gray-600">New customer? </span>
+                <Link
+                  href="/auth/register"
+                  className="text-indigo-600 hover:text-indigo-500"
+                >
+                  Create an account
+                </Link>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-4">
+              <p className="text-sm text-gray-600 mb-2">Apply for business account:</p>
+              <div className="flex space-x-4 justify-center">
+                <Link
+                  href="/auth/apply-garage"
+                  className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+                >
+                  Garage Owner
+                </Link>
+                <Link
+                  href="/auth/apply-mechanic"
+                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                >
+                  Mechanic
+                </Link>
+              </div>
             </div>
             
             <div>

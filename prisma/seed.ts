@@ -15,7 +15,7 @@ async function main() {
   }
 
   // Create system admin user
-  const hashedPassword = await bcrypt.hash('admin123', 12);
+  const hashedPassword = await bcrypt.hash('admin', 12);
   
   const systemAdmin = await prisma.user.create({
     data: {

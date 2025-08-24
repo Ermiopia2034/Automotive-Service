@@ -21,6 +21,12 @@ export default function CustomerDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Customer Dashboard</h1>
           <div className="flex space-x-2">
             <button
+              onClick={() => router.push('/customer/profile')}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Profile
+            </button>
+            <button
               onClick={() => router.push('/auth/change-password')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
@@ -40,11 +46,27 @@ export default function CustomerDashboard() {
           <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome, Customer!</h2>
-              <p className="text-gray-600">
-                Customer features will be implemented in future milestones.
+              <p className="text-gray-600 mb-6">
+                Manage your profile, vehicles, and service requests.
               </p>
-              <div className="mt-6 space-y-2">
-                <div className="text-sm text-gray-500">Available features:</div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+                <button
+                  onClick={() => router.push('/customer/profile')}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium"
+                >
+                  Manage Profile
+                </button>
+                <button
+                  onClick={() => router.push('/customer/profile')}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium"
+                >
+                  My Vehicles
+                </button>
+              </div>
+
+              <div className="mt-8 space-y-2">
+                <div className="text-sm text-gray-500">Coming soon:</div>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li>• Locate nearby garages</li>
                   <li>• Request assistance</li>

@@ -33,6 +33,41 @@ export interface VehicleData {
   color: string;
 }
 
+export interface MechanicApplicationData {
+  garageId: number;
+}
+
+export interface GarageApplicationData {
+  garageName: string;
+  latitude: number;
+  longitude: number;
+  adminEmail: string;
+  adminUsername: string;
+  adminPassword: string;
+  adminFirstName: string;
+  adminLastName: string;
+}
+
+export interface Application {
+  id: number;
+  applicantId: number;
+  applicationType: 'GARAGE' | 'MECHANIC';
+  garageId?: number | null;
+  approved?: boolean | null;
+  createdAt: string;
+  applicant: {
+    id: number;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  garage?: {
+    id: number;
+    garageName: string;
+  } | null;
+}
+
 export interface AuthUser {
   id: number;
   username: string;

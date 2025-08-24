@@ -41,10 +41,10 @@ The database schema supports a multi-role system with the following core entitie
 - `UserRole`: Enum-based role system (CUSTOMER, MECHANIC, GARAGE_ADMIN, SYSTEM_ADMIN)
 
 **Business Entities:**
-- `Customer`: Extended customer profile data
-- `Mechanic`: Mechanic-specific information and specializations
-- `Garage`: Service center locations and details
-- `GarageAdmin`: Administrative access for garage management
+- `Vehicle`: Customer vehicle information and registration details
+- `Mechanic`: Mechanic-specific information and garage assignments
+- `Garage`: Service center locations with GPS coordinates and ratings
+- `Application`: Business application system for garage and mechanic registrations
 - `Service`: Available automotive services
 - `ServiceRequest`: Customer service requests and appointments
 
@@ -101,6 +101,17 @@ All API endpoints follow RESTful conventions under `/api/` directory:
 ├── change-password/  # Password modification
 ├── forgot-password/  # Password reset request
 └── reset-password/   # Password reset completion
+
+/api/users/
+├── register/         # Customer registration
+└── profile/          # User profile management
+
+/api/vehicles/        # Vehicle CRUD operations
+/api/applications/    # Business application system
+├── [id]/            # Application approval/rejection
+/api/garages/
+├── route            # List approved garages
+└── profile/         # Garage profile management
 ```
 
 ### API Patterns
@@ -130,8 +141,22 @@ interface ApiResponse<T> {
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API route handlers
-│   ├── auth/              # Authentication pages
-│   ├── [role]/            # Role-specific dashboard pages
+│   ├── auth/              # Authentication & registration pages
+│   │   ├── signin/        # Unified sign-in page
+│   │   ├── register/      # Customer registration
+│   │   ├── apply-garage/  # Garage application form
+│   │   ├── apply-mechanic/ # Mechanic application form
+│   │   ├── change-password/
+│   │   ├── forgot-password/
+│   │   └── reset-password/
+│   ├── customer/          # Customer dashboard & profile
+│   │   └── profile/       # Customer profile management
+│   ├── garage-admin/      # Garage admin dashboard
+│   │   ├── applications/  # Mechanic application reviews
+│   │   └── profile/       # Garage profile management
+│   ├── system-admin/      # System admin dashboard
+│   │   └── applications/  # Application management interface
+│   ├── mechanic/          # Mechanic dashboard
 │   └── globals.css        # Global styles
 ├── lib/                   # Shared libraries
 │   ├── auth.ts           # NextAuth configuration
@@ -160,11 +185,24 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Logout functionality
 - Change password access
 
-### Authentication Pages
-- **Sign In**: Unified login for all user types with role detection
+### Authentication & Registration Pages
+- **Sign In**: Unified login for all user types with role detection and business application links
+- **Customer Registration**: Self-service account creation with vehicle management
+- **Garage Application**: Business registration with GPS location capture and admin approval workflow
+- **Mechanic Application**: Apply to join approved garages with selection interface
 - **Change Password**: Secure password modification form
 - **Forgot Password**: Email-based password reset request
 - **Reset Password**: Token-based password reset completion
+
+### Profile Management Pages
+- **Customer Profile**: Personal information editing and vehicle management system
+- **Garage Profile**: Garage information management with location updates and mechanic roster
+- **Application Management**: Admin interfaces for reviewing and approving business applications
+
+### Administrative Interfaces
+- **System Admin Applications**: Centralized application review for garage and mechanic approvals
+- **Garage Admin Applications**: Mechanic application management for garage-specific approvals
+- **Enhanced Dashboards**: Modern card-based interfaces with feature status and navigation
 
 ### UI Patterns
 - Tailwind CSS utility classes for consistent styling
@@ -177,10 +215,11 @@ Each role has dedicated dashboard pages following a consistent structure:
 ## Security Patterns
 
 ### Authentication Security
-- Password complexity requirements (minimum 6 characters)
+- Enhanced password complexity requirements (minimum 8 characters, uppercase, lowercase, numbers)
 - Secure password hashing with bcrypt
 - JWT token expiration management
 - Session invalidation on logout
+- Business application approval workflows with role-based permissions
 
 ### Route Protection
 - Middleware-based authentication checks
@@ -193,6 +232,8 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Server-side input sanitization
 - Database constraint enforcement
 - Error handling without information leakage
+- GPS coordinate validation for garage locations
+- Application status tracking and duplicate prevention
 
 ---
 
@@ -215,6 +256,31 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Transaction handling for complex operations
 - Proper connection management
 - Error handling for database failures
+
+---
+
+## Current Implementation Status (Milestone 2)
+
+### Functional Features
+- **User Registration**: Customer self-registration with profile management
+- **Vehicle Management**: Complete CRUD operations for customer vehicles
+- **Business Applications**: Garage and mechanic application workflows with approval systems
+- **Profile Management**: Comprehensive profile editing for all user types
+- **Administrative Interfaces**: Application review systems for system and garage administrators
+- **Location Services**: GPS integration for garage registration and location updates
+
+### API Endpoints Available
+- Customer registration and profile management
+- Vehicle CRUD operations
+- Business application submission and approval
+- Garage profile management with location services
+- Application status tracking and management
+
+### User Workflows Implemented
+1. **Customer Journey**: Registration → Profile Setup → Vehicle Management
+2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Mechanic Recruitment
+3. **Mechanic Journey**: Application → Garage Admin Approval → Account Activation
+4. **Admin Journey**: Application Review → Approval/Rejection → User Management
 
 ---
 
