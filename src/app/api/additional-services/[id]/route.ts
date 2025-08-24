@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -90,6 +91,12 @@ export async function PATCH(
               select: {
                 customerId: true,
                 mechanicId: true,
+                customer: {
+                  select: {
+                    firstName: true,
+                    lastName: true
+                  }
+                },
                 garage: {
                   select: {
                     adminId: true
@@ -153,17 +160,29 @@ export async function PATCH(
       }
     });
 
-    // Create notification for mechanic about approval/decline
+    // Create notification for mechanic about approval/decline using standardized template
     if (additionalService.status.serviceRequest.mechanicId) {
-      await prisma.notification.create({
-        data: {
-          senderId: decoded.id,
-          receiverId: additionalService.status.serviceRequest.mechanicId,
-          type: 'ADDITIONAL_SERVICE_RESPONSE',
-          title: `Additional Service ${approved ? 'Approved' : 'Declined'}`,
-          message: `Your additional service request for "${additionalService.service.serviceName}" has been ${approved ? 'approved' : 'declined'} by the customer.`,
-        }
-      });
+      const customerName = `${additionalService.status.serviceRequest.customer.firstName} ${additionalService.status.serviceRequest.customer.lastName}`;
+      
+      if (approved) {
+        const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.ADDITIONAL_SERVICE_APPROVED].toMechanic(additionalService.service.serviceName, customerName);
+        await createNotification(
+          decoded.id,
+          additionalService.status.serviceRequest.mechanicId,
+          NOTIFICATION_TYPES.ADDITIONAL_SERVICE_APPROVED,
+          template.title,
+          template.message
+        );
+      } else {
+        const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.ADDITIONAL_SERVICE_DECLINED].toMechanic(additionalService.service.serviceName, customerName);
+        await createNotification(
+          decoded.id,
+          additionalService.status.serviceRequest.mechanicId,
+          NOTIFICATION_TYPES.ADDITIONAL_SERVICE_DECLINED,
+          template.title,
+          template.message
+        );
+      }
     }
 
     return NextResponse.json<ApiResponse>(

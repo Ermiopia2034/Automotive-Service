@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse, OngoingServiceData, OngoingService } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -346,16 +347,16 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create notification for customer
-    await prisma.notification.create({
-      data: {
-        senderId: decoded.id,
-        receiverId: vehicleStatus.serviceRequest.customerId,
-        type: 'SERVICE_ADDED',
-        title: 'New Service Added',
-        message: `A new service "${service.serviceName}" has been added to your vehicle service. Expected completion: ${expectedDateObj.toLocaleDateString()}`,
-      }
-    });
+    // Create notification for customer using standardized template
+    const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.SERVICE_STARTED].toCustomer(service.serviceName);
+    
+    await createNotification(
+      decoded.id,
+      vehicleStatus.serviceRequest.customerId,
+      NOTIFICATION_TYPES.SERVICE_STARTED,
+      template.title,
+      template.message
+    );
 
     return NextResponse.json<ApiResponse>(
       {

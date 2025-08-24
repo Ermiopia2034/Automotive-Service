@@ -141,8 +141,8 @@ All API endpoints follow RESTful conventions under `/api/` directory:
 ├── route            # Request additional services
 └── [id]/           # Approve/decline additional services
 
-/api/notifications/   # Real-time communication system
-├── route            # List/mark notifications as read
+/api/notifications/   # Comprehensive notification system
+├── route            # List/mark/delete notifications with read status management
 
 /api/service-completion/ # Service completion and pricing
 ├── route            # Complete services with final calculations
@@ -198,6 +198,9 @@ src/
 │   └── prisma.ts         # Database client
 ├── types/                 # TypeScript type definitions
 ├── utils/                 # Utility functions
+│   ├── common.ts         # General utilities
+│   ├── password.ts       # Password utilities
+│   └── notifications.ts  # Notification system utilities
 └── middleware.ts          # Route protection
 ```
 
@@ -314,7 +317,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ---
 
-## Current Implementation Status (Milestone 4)
+## Current Implementation Status (Milestone 6)
 
 ### Functional Features
 - **User Registration**: Customer self-registration with profile management
@@ -334,7 +337,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Advanced Service Tracking**: Real-time service progress updates with detailed status tracking
 - **Ongoing Service Management**: Active service tracking with completion dates and progress monitoring
 - **Additional Service Workflow**: Customer approval system for services discovered during delivery
-- **Real-time Communication**: Comprehensive notification system for all stakeholders
+- **Comprehensive Notification System**: Real-time notification delivery with standardized templates and read status management
 - **Service Completion System**: Final pricing calculations with detailed service summaries and invoicing
 
 ### API Endpoints Available
@@ -353,7 +356,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Vehicle status tracking with real-time updates
 - Ongoing service management with completion tracking
 - Additional service request and approval workflows
-- Comprehensive notification system with read status
+- Comprehensive notification system with standardized templates, CRUD operations, and real-time delivery
 - Service completion with final pricing calculations
 
 ### User Workflows Implemented
@@ -364,6 +367,40 @@ Each role has dedicated dashboard pages following a consistent structure:
 5. **Service Management**: System Admin Creates Services → Garage Admin Assigns to Garage → Customer Discovers Services
 6. **Service Request Flow**: Customer Location Capture → Garage Selection → Request Submission → Mechanic Assignment → Status Updates → Service Completion
 7. **Advanced Service Tracking**: Service Request → Mechanic Assignment → Real-time Status Updates → Ongoing Service Management → Additional Service Requests → Customer Approvals → Service Completion → Final Pricing
+8. **Notification System**: Automated notification delivery across all service workflows with standardized templates and real-time updates
+
+## Notification System Architecture
+
+### Notification Types & Templates
+The system implements a comprehensive notification framework with standardized types and templates:
+
+**Core Notification Types:**
+- `REQUEST_CREATED`: New service request notifications to garage staff
+- `REQUEST_ACCEPTED`: Service acceptance confirmations to customers
+- `REQUEST_IN_PROGRESS`: Service progress updates
+- `REQUEST_COMPLETED`: Service completion notifications
+- `REQUEST_CANCELLED`: Cancellation notifications to all parties
+- `STATUS_UPDATE`: Real-time service status updates requiring customer approval
+- `STATUS_APPROVED/DECLINED`: Customer approval responses to mechanics
+- `SERVICE_STARTED/FINISHED`: Individual service progress notifications
+- `ADDITIONAL_SERVICE_REQUESTED`: Additional service approval requests
+- `ADDITIONAL_SERVICE_APPROVED/DECLINED`: Customer responses to additional services
+- `SERVICE_COMPLETION`: Final service completion with pricing information
+
+### Notification Infrastructure
+- **Centralized Utility**: [`notifications.ts`](src/utils/notifications.ts:1) provides standardized notification creation
+- **Template System**: Context-aware notification templates with consistent messaging
+- **CRUD Operations**: Complete notification management with read/unread status tracking
+- **Bulk Operations**: Mark all notifications as read or delete multiple notifications
+- **Real-time Delivery**: Automatic notification triggering based on system events
+- **Error Handling**: Robust error handling with fallback mechanisms
+
+### Integration Points
+All API endpoints automatically trigger appropriate notifications:
+- Service request creation notifies garage admins and mechanics
+- Status updates notify customers with approval requirements
+- Service progress notifications keep all parties informed
+- Completion notifications provide final pricing and summaries
 
 ---
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -88,6 +89,12 @@ export async function PATCH(
           select: {
             customerId: true,
             mechanicId: true,
+            customer: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            },
             garage: {
               select: {
                 adminId: true
@@ -167,17 +174,29 @@ export async function PATCH(
       }
     });
 
-    // Create notification for mechanic about approval/disapproval
+    // Create notification for mechanic about approval/disapproval using standardized template
     if (vehicleStatus.serviceRequest.mechanicId) {
-      await prisma.notification.create({
-        data: {
-          senderId: decoded.id,
-          receiverId: vehicleStatus.serviceRequest.mechanicId,
-          type: 'STATUS_APPROVAL',
-          title: `Status Update ${approved ? 'Approved' : 'Rejected'}`,
-          message: `Your status update has been ${approved ? 'approved' : 'rejected'} by the customer.`,
-        }
-      });
+      const customerName = `${vehicleStatus.serviceRequest.customer.firstName} ${vehicleStatus.serviceRequest.customer.lastName}`;
+      
+      if (approved) {
+        const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.STATUS_APPROVED].toMechanic(customerName);
+        await createNotification(
+          decoded.id,
+          vehicleStatus.serviceRequest.mechanicId,
+          NOTIFICATION_TYPES.STATUS_APPROVED,
+          template.title,
+          template.message
+        );
+      } else {
+        const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.STATUS_DECLINED].toMechanic(customerName);
+        await createNotification(
+          decoded.id,
+          vehicleStatus.serviceRequest.mechanicId,
+          NOTIFICATION_TYPES.STATUS_DECLINED,
+          template.title,
+          template.message
+        );
+      }
     }
 
     return NextResponse.json<ApiResponse>(

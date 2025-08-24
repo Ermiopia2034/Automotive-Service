@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -166,17 +167,17 @@ export async function PATCH(
       }
     });
 
-    // Create notification for customer if service is finished
+    // Create notification for customer if service is finished using standardized template
     if (serviceFinished) {
-      await prisma.notification.create({
-        data: {
-          senderId: decoded.id,
-          receiverId: ongoingService.status.serviceRequest.customerId,
-          type: 'SERVICE_COMPLETED',
-          title: 'Service Completed',
-          message: `The service "${ongoingService.service.serviceName}" has been completed. ${totalPrice !== undefined ? `Final price: $${totalPrice}` : ''}`,
-        }
-      });
+      const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.SERVICE_FINISHED].toCustomer(ongoingService.service.serviceName);
+      
+      await createNotification(
+        decoded.id,
+        ongoingService.status.serviceRequest.customerId,
+        NOTIFICATION_TYPES.SERVICE_FINISHED,
+        template.title,
+        template.message
+      );
     }
 
     return NextResponse.json<ApiResponse>(

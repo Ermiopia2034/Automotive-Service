@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse, AdditionalServiceData, AdditionalService } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -328,16 +329,23 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create notification for customer
-    await prisma.notification.create({
-      data: {
-        senderId: decoded.id,
-        receiverId: vehicleStatus.serviceRequest.customerId,
-        type: 'ADDITIONAL_SERVICE_REQUEST',
-        title: 'Additional Service Request',
-        message: `Your mechanic has requested approval for an additional service: "${service.serviceName}" - $${totalPrice}. Please review and approve or decline.`,
-      }
+    // Get mechanic details for notification
+    const mechanic = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { firstName: true, lastName: true }
     });
+    
+    // Create notification for customer using standardized template
+    const mechanicName = mechanic ? `${mechanic.firstName} ${mechanic.lastName}` : 'Assigned Mechanic';
+    const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.ADDITIONAL_SERVICE_REQUESTED].toCustomer(service.serviceName, totalPrice, mechanicName);
+    
+    await createNotification(
+      decoded.id,
+      vehicleStatus.serviceRequest.customerId,
+      NOTIFICATION_TYPES.ADDITIONAL_SERVICE_REQUESTED,
+      template.title,
+      template.message
+    );
 
     return NextResponse.json<ApiResponse>(
       {

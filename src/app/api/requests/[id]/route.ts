@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse, ServiceRequestStatusUpdate } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -413,6 +414,84 @@ export async function PATCH(
         }
       }
     });
+
+    // Send appropriate notifications based on status change
+    try {
+      const customerName = `${updatedRequest.customer.firstName} ${updatedRequest.customer.lastName}`;
+      const garageName = updatedRequest.garage.garageName;
+      const mechanicName = updatedRequest.mechanic
+        ? `${updatedRequest.mechanic.firstName} ${updatedRequest.mechanic.lastName}`
+        : 'Assigned Mechanic';
+
+      switch (status) {
+        case 'ACCEPTED':
+          if (updatedRequest.mechanicId) {
+            const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.REQUEST_ACCEPTED].toCustomer(garageName, mechanicName);
+            await createNotification(
+              updatedRequest.mechanicId,
+              updatedRequest.customerId,
+              NOTIFICATION_TYPES.REQUEST_ACCEPTED,
+              template.title,
+              template.message
+            );
+          }
+          break;
+
+        case 'IN_PROGRESS':
+          if (updatedRequest.mechanicId) {
+            const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.REQUEST_IN_PROGRESS].toCustomer(mechanicName);
+            await createNotification(
+              updatedRequest.mechanicId,
+              updatedRequest.customerId,
+              NOTIFICATION_TYPES.REQUEST_IN_PROGRESS,
+              template.title,
+              template.message
+            );
+          }
+          break;
+
+        case 'COMPLETED':
+          if (updatedRequest.mechanicId) {
+            // For completion notification, we'll use a basic template since final pricing comes from service completion endpoint
+            const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.REQUEST_COMPLETED].toCustomer(mechanicName, 0);
+            await createNotification(
+              updatedRequest.mechanicId,
+              updatedRequest.customerId,
+              NOTIFICATION_TYPES.REQUEST_COMPLETED,
+              template.title,
+              'Your service request has been completed. Final pricing and details will be provided shortly.'
+            );
+          }
+          break;
+
+        case 'CANCELLED':
+          // Notify customer about cancellation
+          const customerTemplate = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.REQUEST_CANCELLED].toCustomer();
+          await createNotification(
+            decoded.id,
+            updatedRequest.customerId,
+            NOTIFICATION_TYPES.REQUEST_CANCELLED,
+            customerTemplate.title,
+            customerTemplate.message
+          );
+
+          // Notify mechanic if assigned
+          if (updatedRequest.mechanicId && updatedRequest.mechanicId !== decoded.id) {
+            const mechanicTemplate = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.REQUEST_CANCELLED].toMechanic(customerName);
+            await createNotification(
+              decoded.id,
+              updatedRequest.mechanicId,
+              NOTIFICATION_TYPES.REQUEST_CANCELLED,
+              mechanicTemplate.title,
+              mechanicTemplate.message
+            );
+          }
+          break;
+      }
+    } catch (notificationError) {
+      console.error('Error sending status update notification:', notificationError);
+      // Don't fail the request if notification fails
+    }
 
     return NextResponse.json<ApiResponse>(
       {

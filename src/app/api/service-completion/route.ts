@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse } from '@/types/auth';
+import { createNotification, NOTIFICATION_TYPES, NOTIFICATION_TEMPLATES } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -326,7 +327,8 @@ export async function POST(request: NextRequest) {
         garage: {
           select: {
             id: true,
-            garageName: true
+            garageName: true,
+            adminId: true
           }
         },
         vehicle: {
@@ -448,28 +450,26 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create completion notification for customer
-    await prisma.notification.create({
-      data: {
-        senderId: decoded.id,
-        receiverId: serviceRequest.customerId,
-        type: 'SERVICE_COMPLETED',
-        title: 'Service Completed',
-        message: `Your vehicle service has been completed! Final total: $${finalTotal}. Services performed: ${servicesList.join(', ')}. Thank you for choosing ${serviceRequest.garage.garageName}!`,
-      }
-    });
+    // Create completion notification for customer using standardized template
+    const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.SERVICE_COMPLETION].toCustomer(finalTotal, totalOngoingServices + totalAdditionalServices);
+    
+    await createNotification(
+      decoded.id,
+      serviceRequest.customerId,
+      NOTIFICATION_TYPES.SERVICE_COMPLETION,
+      template.title,
+      template.message
+    );
 
     // Create completion notification for garage admin
     if (serviceRequest.garage) {
-      await prisma.notification.create({
-        data: {
-          senderId: decoded.id,
-          receiverId: serviceRequest.garage.id, // This should be adminId, let me fix this
-          type: 'SERVICE_COMPLETED_ADMIN',
-          title: 'Service Request Completed',
-          message: `Service request #${serviceRequestId} has been completed by your mechanic. Final total: $${finalTotal}`,
-        }
-      });
+      await createNotification(
+        decoded.id,
+        serviceRequest.garage.adminId,
+        NOTIFICATION_TYPES.SERVICE_COMPLETION,
+        'Service Request Completed',
+        `Service request #${serviceRequestId} has been completed. Final total: $${finalTotal.toFixed(2)}`
+      );
     }
 
     const summary: ServiceSummary = {

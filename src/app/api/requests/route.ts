@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import type { ApiResponse, ServiceRequestData, ServiceRequest } from '@/types/auth';
 import { calculateDistance } from '@/utils/common';
+import { notifyGarageAboutNewRequest } from '@/utils/notifications';
 
 interface JwtPayload {
   id: number;
@@ -383,6 +384,17 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+
+    // Notify garage admin and mechanics about the new request
+    const customerName = `${serviceRequest.customer.firstName} ${serviceRequest.customer.lastName}`;
+    const vehicleInfo = `${serviceRequest.vehicle.color} ${serviceRequest.vehicle.vehicleType} (${serviceRequest.vehicle.plateCode}-${serviceRequest.vehicle.plateNumber})`;
+    
+    await notifyGarageAboutNewRequest(
+      decoded.id,
+      garageId,
+      customerName,
+      vehicleInfo
+    );
 
     return NextResponse.json<ApiResponse>(
       {
