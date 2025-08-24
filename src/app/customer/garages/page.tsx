@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { getCurrentLocation, formatDistance, formatRating, estimateTravelTime } from '@/utils/common';
+import RatingDisplay from '@/components/RatingDisplay';
+import RatingForm from '@/components/RatingForm';
 
 interface Garage {
   id: number;
@@ -42,8 +44,12 @@ export default function CustomerGarages() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('default');
   const [maxDistance, setMaxDistance] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [maxRating, setMaxRating] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedGarage, setSelectedGarage] = useState<Garage | null>(null);
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
   const fetchGarages = useCallback(async () => {
     try {
@@ -64,9 +70,17 @@ export default function CustomerGarages() {
       if (searchTerm.trim()) {
         params.append('search', searchTerm.trim());
       }
-      
+
       if (sortBy !== 'default') {
         params.append('sort', sortBy);
+      }
+
+      if (minRating) {
+        params.append('min_rating', minRating);
+      }
+
+      if (maxRating) {
+        params.append('max_rating', maxRating);
       }
 
       const response = await fetch(`/api/garages?${params.toString()}`);
@@ -83,7 +97,7 @@ export default function CustomerGarages() {
     } finally {
       setLoading(false);
     }
-  }, [userLocation, maxDistance, searchTerm, sortBy]);
+  }, [userLocation, maxDistance, searchTerm, sortBy, minRating, maxRating]);
 
   const getUserLocation = async () => {
     try {
@@ -105,7 +119,7 @@ export default function CustomerGarages() {
 
   useEffect(() => {
     fetchGarages();
-  }, [userLocation, maxDistance, searchTerm, sortBy, fetchGarages]);
+  }, [userLocation, maxDistance, searchTerm, sortBy, minRating, maxRating, fetchGarages]);
 
   const handleLogout = async () => {
     try {
@@ -125,6 +139,8 @@ export default function CustomerGarages() {
     setSearchTerm('');
     setMaxDistance('');
     setSortBy('default');
+    setMinRating('');
+    setMaxRating('');
   };
 
   return (
@@ -214,7 +230,7 @@ export default function CustomerGarages() {
             </div>
 
             {showFilters && (
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Sort By
@@ -247,6 +263,38 @@ export default function CustomerGarages() {
                     />
                   </div>
                 )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Min Rating
+                  </label>
+                  <select
+                    value={minRating}
+                    onChange={(e) => setMinRating(e.target.value)}
+                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Any</option>
+                    {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                      <option key={n} value={n}>{n}+ stars</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Max Rating
+                  </label>
+                  <select
+                    value={maxRating}
+                    onChange={(e) => setMaxRating(e.target.value)}
+                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Any</option>
+                    {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                      <option key={n} value={n}>{n} stars max</option>
+                    ))}
+                  </select>
+                </div>
 
                 <div className="flex items-end">
                   <button
@@ -359,14 +407,18 @@ export default function CustomerGarages() {
           {/* Garage Details Modal */}
           {selectedGarage && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-gray-900">
                       {selectedGarage.garageName}
                     </h3>
                     <button
-                      onClick={() => setSelectedGarage(null)}
+                      onClick={() => {
+                        setSelectedGarage(null);
+                        setShowRatingForm(false);
+                        setRatingSubmitted(false);
+                      }}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -425,6 +477,37 @@ export default function CustomerGarages() {
                       </div>
                     )}
 
+                    {/* Rating Section */}
+                    <div className="border-t border-gray-200 pt-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-md font-semibold text-gray-900">Customer Reviews</h4>
+                        {!showRatingForm && !ratingSubmitted && (
+                          <button
+                            onClick={() => setShowRatingForm(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
+                          >
+                            Write Review
+                          </button>
+                        )}
+                      </div>
+
+                      {showRatingForm ? (
+                        <div className="mb-4">
+                          <RatingForm
+                            garageId={selectedGarage.id}
+                            garageName={selectedGarage.garageName}
+                            onSubmitSuccess={() => {
+                              setRatingSubmitted(true);
+                              setShowRatingForm(false);
+                            }}
+                            onCancel={() => setShowRatingForm(false)}
+                          />
+                        </div>
+                      ) : (
+                        <RatingDisplay garageId={selectedGarage.id} />
+                      )}
+                    </div>
+
                     <div className="pt-4 border-t border-gray-200">
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
@@ -433,6 +516,8 @@ export default function CustomerGarages() {
                         <button
                           onClick={() => {
                             setSelectedGarage(null);
+                            setShowRatingForm(false);
+                            setRatingSubmitted(false);
                             router.push(`/customer/request-service?garage_id=${selectedGarage.id}`);
                           }}
                           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"

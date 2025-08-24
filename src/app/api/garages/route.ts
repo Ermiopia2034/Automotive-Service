@@ -47,6 +47,8 @@ export async function GET(request: NextRequest) {
     const maxDistanceString = searchParams.get('max_distance');
     const search = searchParams.get('search');
     const sortBy = searchParams.get('sort') || 'default'; // default, distance, rating, name
+    const minRating = searchParams.get('min_rating');
+    const maxRating = searchParams.get('max_rating');
 
     const whereClause: Record<string, unknown> = {
       removed: false,
@@ -63,6 +65,29 @@ export async function GET(request: NextRequest) {
         contains: search,
         mode: 'insensitive'
       };
+    }
+
+    // Filter by rating range if provided
+    if (minRating || maxRating) {
+      const ratingFilter: Record<string, unknown> = {};
+
+      if (minRating) {
+        const minRatingValue = parseFloat(minRating);
+        if (!isNaN(minRatingValue) && minRatingValue >= 0 && minRatingValue <= 10) {
+          ratingFilter.gte = minRatingValue;
+        }
+      }
+
+      if (maxRating) {
+        const maxRatingValue = parseFloat(maxRating);
+        if (!isNaN(maxRatingValue) && maxRatingValue >= 0 && maxRatingValue <= 10) {
+          ratingFilter.lte = maxRatingValue;
+        }
+      }
+
+      if (Object.keys(ratingFilter).length > 0) {
+        whereClause.rating = ratingFilter;
+      }
     }
 
     const garages = await prisma.garage.findMany({

@@ -269,7 +269,7 @@ function CustomerDashboardContent() {
           <div className="bg-white shadow rounded-lg mb-6">
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                {(['overview', 'requests', 'tracking', 'notifications'] as const).map((tab) => (
+                {(['overview', 'requests', 'tracking', 'feedback', 'notifications'] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -282,6 +282,7 @@ function CustomerDashboardContent() {
                     {tab === 'overview' && 'Overview'}
                     {tab === 'requests' && 'My Requests'}
                     {tab === 'tracking' && 'Service Tracking'}
+                    {tab === 'feedback' && 'My Reviews'}
                     {tab === 'notifications' && 'Notifications'}
                     {tab === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
                       <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
@@ -311,7 +312,7 @@ function CustomerDashboardContent() {
                       <div>Manage Profile</div>
                       <div className="text-sm opacity-75 mt-1">Update personal info & vehicles</div>
                     </button>
-                    
+
                     <button
                       onClick={() => router.push('/customer/garages')}
                       className="bg-green-600 hover:bg-green-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
@@ -320,7 +321,16 @@ function CustomerDashboardContent() {
                       <div>Find Garages</div>
                       <div className="text-sm opacity-75 mt-1">Locate nearby services</div>
                     </button>
-                    
+
+                    <button
+                      onClick={() => router.push('/customer/feedback')}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
+                    >
+                      <div className="text-xl mb-2">⭐</div>
+                      <div>My Reviews</div>
+                      <div className="text-sm opacity-75 mt-1">View and manage ratings</div>
+                    </button>
+
                     <button
                       onClick={() => setActiveTab('tracking')}
                       className="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
@@ -329,7 +339,7 @@ function CustomerDashboardContent() {
                       <div>Track Progress</div>
                       <div className="text-sm opacity-75 mt-1">Real-time service updates</div>
                     </button>
-                    
+
                     <button
                       onClick={() => setActiveTab('requests')}
                       className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
@@ -469,6 +479,151 @@ function CustomerDashboardContent() {
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
                     <h2 className="text-xl font-bold text-gray-900">Real-time Service Tracking</h2>
+                  </div>
+
+                  {activeRequests.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                      <div className="text-6xl mb-4">🔧</div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Services</h3>
+                      <p className="text-gray-600 mb-4">You do not have any services currently being worked on.</p>
+                      <button
+                        onClick={() => router.push('/customer/garages')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Request Service
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="bg-white shadow rounded-lg p-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select Service Request to Track:
+                        </label>
+                        <select
+                          value={selectedServiceRequest || ''}
+                          onChange={(e) => {
+                            const requestId = parseInt(e.target.value);
+                            setSelectedServiceRequest(requestId);
+                            if (requestId) {
+                              fetchVehicleStatuses(requestId);
+                            }
+                          }}
+                          className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Select a request...</option>
+                          {activeRequests.map((request) => (
+                            <option key={request.id} value={request.id}>
+                              Request #{request.id} - {request.garage.garageName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {selectedServiceRequest && (
+                        <div className="bg-white shadow rounded-lg p-6">
+                          {trackingLoading ? (
+                            <div className="text-center py-8">
+                              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                              <p className="mt-2 text-gray-600">Loading service tracking...</p>
+                            </div>
+                          ) : vehicleStatuses.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                              <p>No status updates available yet.</p>
+                              <p className="text-sm mt-1">The mechanic will provide updates soon.</p>
+                            </div>
+                          ) : (
+                            <ServiceTrackingTimeline
+                              statuses={vehicleStatuses}
+                              onApproveStatus={handleApproveStatusUpdate}
+                              onApproveAdditionalService={handleApproveAdditionalService}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Feedback Tab */}
+              {activeTab === 'feedback' && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">My Reviews & Ratings</h2>
+                    <button
+                      onClick={() => router.push('/customer/feedback')}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      View All Reviews
+                    </button>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="text-2xl">⭐</div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-blue-900">Share Your Experience</h3>
+                        <p className="text-blue-700">Your reviews help other customers make informed decisions</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-white rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">How to Rate Services</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          <li>• Rate after service completion</li>
+                          <li>• Be honest and constructive</li>
+                          <li>• Mention specific mechanics if applicable</li>
+                          <li>• Include details in your comments</li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-white rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Rating Scale</h4>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">10 - Excellent</span>
+                            <span className="text-green-600">⭐⭐⭐⭐⭐</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">7-9 - Good</span>
+                            <span className="text-blue-600">⭐⭐⭐⭐</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">4-6 - Fair</span>
+                            <span className="text-yellow-600">⭐⭐⭐</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">1-3 - Poor</span>
+                            <span className="text-red-600">⭐⭐</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-center">
+                      <button
+                        onClick={() => router.push('/customer/garages')}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"
+                      >
+                        Find Garages to Review
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Notifications Tab */}
+              {activeTab === 'notifications' && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Logout
+                    </button>
                   </div>
 
                   {activeRequests.length === 0 ? (

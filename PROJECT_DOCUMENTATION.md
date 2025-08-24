@@ -155,7 +155,10 @@ All API endpoints follow RESTful conventions under `/api/` directory:
 └── mechanic-performance/ # Mechanic performance tracking APIs
 
 /api/mechanic/       # Mechanic-specific APIs
-└── performance/     # Individual mechanic performance metrics
+ └── performance/     # Individual mechanic performance metrics
+
+/api/ratings/        # Rating and feedback system
+ ├── route           # Rating submission and retrieval with customer/garage filtering
 ```
 
 ### API Patterns
@@ -185,6 +188,7 @@ interface ApiResponse<T> {
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API route handlers
+│   │   └── ratings/       # Rating and feedback system
 │   ├── auth/              # Authentication & registration pages
 │   │   ├── signin/        # Unified sign-in page
 │   │   ├── register/      # Customer registration
@@ -194,7 +198,12 @@ src/
 │   │   ├── forgot-password/
 │   │   └── reset-password/
 │   ├── customer/          # Customer dashboard & profile
+│   │   ├── feedback/      # Customer feedback and reviews
 │   │   └── profile/       # Customer profile management
+│   ├── components/        # Reusable UI components
+│   │   ├── RatingStars.tsx    # Interactive star rating component
+│   │   ├── RatingForm.tsx     # Rating submission form
+│   │   └── RatingDisplay.tsx  # Rating display component
 │   ├── garage-admin/      # Garage admin dashboard
 │   │   ├── applications/  # Mechanic application reviews
 │   │   ├── mechanics/     # Advanced mechanic management
@@ -270,6 +279,14 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Service Browsing**: View available services, pricing, and garage details per location
 - **Distance & Travel Time**: Real-time calculations with estimated travel duration
 
+### Rating & Feedback System
+- **Interactive Rating Components**: Star-based rating system with hover effects and validation
+- **Rating Submission Forms**: Customer feedback collection with optional mechanic selection
+- **Rating Display Components**: Visual representation of ratings and reviews
+- **Customer Feedback Dashboard**: Personal review management and statistics
+- **Admin Moderation Tools**: Bulk rating management and content filtering
+- **Rating Analytics Integration**: Performance metrics and trend analysis
+
 ### Advanced Service Tracking Interfaces
 - **Mechanic Service Dashboard**: Comprehensive service tracking with real-time status updates, ongoing service management, and completion workflows
 - **Customer Progress Tracking**: Real-time service timeline with status updates, additional service approvals, and completion notifications
@@ -342,7 +359,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ---
 
-## Current Implementation Status (Milestone 7)
+## Current Implementation Status (Milestone 8)
 
 ### Functional Features
 - **User Registration**: Customer self-registration with profile management
@@ -367,6 +384,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Advanced Admin Dashboards**: System admin user/garage management, feedback monitoring, system analytics
 - **Performance Management System**: Multi-level performance tracking with grading, analytics, and personal metrics
 - **Comprehensive Analytics Platform**: System-wide, garage-specific, and individual performance analytics
+- **Rating & Feedback System**: Interactive 1-10 star rating system with comment functionality, customer feedback management, admin moderation tools, rating-based garage ranking and filtering
 
 ### API Endpoints Available
 - Customer registration and profile management
@@ -389,20 +407,23 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Administrative APIs for user management, garage control, feedback monitoring, and analytics
 - Mechanic performance APIs for individual and collective performance tracking
 - Advanced analytics APIs for system-wide and role-specific metrics
+- Rating and feedback APIs for customer reviews, rating submission, and moderation
 
 ### User Workflows Implemented
-1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing → Service Request Creation → Request Status Tracking → Service Progress Updates → Additional Service Approval → Service Completion
+1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing → Service Request Creation → Request Status Tracking → Service Progress Updates → Additional Service Approval → Service Completion → Rating & Feedback Submission
 2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Service Portfolio Setup → Mechanic Recruitment → Request Oversight → Service Monitoring
 3. **Mechanic Journey**: Application → Garage Admin Approval → Account Activation → Request Acceptance → Service Delivery → Status Updates → Service Completion
 4. **Admin Journey**: Application Review → Approval/Rejection → User Management → Service Catalog Management → System Oversight
 5. **Service Management**: System Admin Creates Services → Garage Admin Assigns to Garage → Customer Discovers Services
 6. **Service Request Flow**: Customer Location Capture → Garage Selection → Request Submission → Mechanic Assignment → Status Updates → Service Completion
 7. **Advanced Service Tracking**: Service Request → Mechanic Assignment → Real-time Status Updates → Ongoing Service Management → Additional Service Requests → Customer Approvals → Service Completion → Final Pricing
-8. **Notification System**: Automated notification delivery across all service workflows with standardized templates and real-time updates
+8. **Rating & Feedback System**: Service Completion → Customer Rating Submission → Optional Mechanic Selection → Comment Addition → Rating Validation → Garage Rating Update → Admin Moderation → Analytics Integration
+9. **Notification System**: Automated notification delivery across all service workflows with standardized templates and real-time updates
 9. **Admin Management Workflows**:
-   - **System Admin**: User Management → Role Assignment → Garage Oversight → Performance Analytics → Feedback Moderation
-   - **Garage Admin**: Mechanic Performance Review → Service Analytics → Team Management → Performance Grading
-   - **Mechanic**: Personal Performance Tracking → Goal Monitoring → Activity Analysis → Rating Management
+    - **System Admin**: User Management → Role Assignment → Garage Oversight → Performance Analytics → Feedback Moderation → Rating Analytics → Content Management
+    - **Garage Admin**: Mechanic Performance Review → Service Analytics → Team Management → Performance Grading → Customer Feedback Analysis
+    - **Mechanic**: Personal Performance Tracking → Goal Monitoring → Activity Analysis → Rating Management → Customer Satisfaction Tracking
+10. **Rating & Feedback Management**: Customer Reviews → Rating Validation → Admin Moderation → Content Filtering → Analytics Generation → Performance Impact Assessment
 
 ## Administrative System Architecture
 
