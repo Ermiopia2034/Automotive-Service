@@ -29,9 +29,10 @@ function getTokenFromRequest(request: NextRequest): string | null {
 // PATCH - Approve or reject application
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const token = getTokenFromRequest(request);
     
     if (!token) {
@@ -48,7 +49,7 @@ export async function PATCH(
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -58,7 +59,7 @@ export async function PATCH(
       );
     }
 
-    const applicationId = parseInt(params.id);
+    const applicationId = parseInt(id);
     if (isNaN(applicationId)) {
       return NextResponse.json<ApiResponse>(
         { 

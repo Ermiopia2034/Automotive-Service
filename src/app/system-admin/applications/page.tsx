@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { ApiResponse, Application } from '@/types/auth';
@@ -15,11 +15,7 @@ export default function SystemAdminApplicationsPage() {
   const [success, setSuccess] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    fetchApplications();
-  }, [filter, typeFilter]);
-
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
       let url = '/api/applications?';
@@ -46,7 +42,11 @@ export default function SystemAdminApplicationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, typeFilter]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const handleApproval = async (applicationId: number, approved: boolean) => {
     setProcessingId(applicationId);
@@ -157,7 +157,7 @@ export default function SystemAdminApplicationsPage() {
               <select
                 id="status-filter"
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'pending' | 'approved' | 'rejected')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="all">All Applications</option>
@@ -173,7 +173,7 @@ export default function SystemAdminApplicationsPage() {
               <select
                 id="type-filter"
                 value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as any)}
+                onChange={(e) => setTypeFilter(e.target.value as 'all' | 'GARAGE' | 'MECHANIC')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="all">All Types</option>

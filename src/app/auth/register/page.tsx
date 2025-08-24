@@ -38,6 +38,7 @@ export default function RegisterPage() {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registrationData } = formData;
       
       const response = await fetch('/api/users/register', {
@@ -56,8 +57,9 @@ export default function RegisterPage() {
           router.push('/auth/signin');
         }, 2000);
       } else {
-        if (data.error === 'Password validation failed' && data.data?.errors) {
-          setError(`Password validation failed:\n• ${data.data.errors.join('\n• ')}`);
+        if (data.error === 'Password validation failed' && data.data && typeof data.data === 'object' && 'errors' in data.data) {
+          const errorData = data.data as { errors: string[] };
+          setError(`Password validation failed:\n• ${errorData.errors.join('\n• ')}`);
         } else {
           setError(data.error || 'Registration failed');
         }

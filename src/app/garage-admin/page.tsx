@@ -100,13 +100,13 @@ export default function GarageAdminDashboard() {
               </div>
             </div>
 
-            {/* Coming Soon Cards */}
-            <div className="bg-white overflow-hidden shadow rounded-lg opacity-60">
+            {/* Service Management */}
+            <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
                       </svg>
                     </div>
@@ -114,38 +114,43 @@ export default function GarageAdminDashboard() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Service Management</dt>
-                      <dd className="text-lg font-medium text-gray-900">Coming Soon</dd>
+                      <dd className="text-lg font-medium text-gray-900">Manage</dd>
                     </dl>
                   </div>
                 </div>
               </div>
               <div className="bg-gray-50 px-5 py-3">
                 <div className="text-sm">
-                  <span className="font-medium text-gray-400">Manage services</span>
+                  <button
+                    onClick={() => router.push('/garage-admin/services')}
+                    className="font-medium text-orange-600 hover:text-orange-500"
+                  >
+                    Manage services
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-green-900 mb-2">Milestone 2 Features Available</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-800">
+          <div className="mt-8 bg-orange-50 border border-orange-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-orange-900 mb-2">Milestone 3 Features - Service Management</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-orange-800">
               <div>
                 <strong>✅ Active Features:</strong>
                 <ul className="mt-2 space-y-1">
                   <li>• Review mechanic applications</li>
                   <li>• Manage garage profile</li>
-                  <li>• Update garage information</li>
-                  <li>• View application status</li>
+                  <li>• Manage garage services</li>
+                  <li>• Service availability toggle</li>
                 </ul>
               </div>
               <div>
                 <strong>🔄 Coming Next:</strong>
                 <ul className="mt-2 space-y-1">
-                  <li>• Service management</li>
                   <li>• Service request handling</li>
                   <li>• Mechanic performance</li>
                   <li>• Customer communications</li>
+                  <li>• Service tracking</li>
                 </ul>
               </div>
             </div>

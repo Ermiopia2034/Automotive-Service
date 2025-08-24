@@ -406,6 +406,65 @@ Applications {
 6. **Mobile**: Ensure mobile responsiveness for field use
 7. **Offline**: Consider basic offline capabilities for critical functions
 
+## Coding Standards & Best Practices
+
+### TypeScript Standards
+- **Never use `any` type**: Always define proper interfaces and types
+- **Use union types**: For restricted string values like `'all' | 'pending' | 'approved'`
+- **Define return types**: Ensure all functions have explicit or inferable return types
+- **Handle all code paths**: Ensure functions return values in all possible execution paths
+
+### Next.js App Router Standards
+- **Dynamic routes**: Use `Promise<{ param: string }>` for params in route handlers
+- **Await params**: Always await the params object in dynamic route handlers
+```typescript
+// Correct
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  // use id...
+}
+```
+
+### React Hook Standards
+- **useCallback for functions**: Wrap functions used in useEffect dependencies with useCallback
+- **Include all dependencies**: Add all variables used inside hooks to dependency arrays
+- **Order hooks correctly**: Define callback functions before useEffect that depends on them
+```typescript
+// Correct
+const fetchData = useCallback(async () => {
+  // fetch logic using dependencies
+}, [dependency1, dependency2]);
+
+useEffect(() => {
+  fetchData();
+}, [fetchData]);
+```
+
+### Import/Variable Standards
+- **Remove unused imports**: Clean up unused imports regularly
+- **Remove unused variables**: Use `_` or ESLint disable comments for intentionally unused variables
+- **Use descriptive destructuring**: Rename destructured variables when needed (`{ id: serviceId }`)
+
+### Error Handling Standards
+- **Consistent catch blocks**: Use anonymous parameters `catch { }` for unused error variables
+- **Proper error responses**: Always return proper NextResponse objects in API routes
+- **Type error responses**: Use `NextResponse.json<ApiResponse>()` for consistent typing
+
+### API Route Standards
+- **Define interfaces**: Create proper interfaces for request/response types
+- **Validate inputs**: Always validate and type request bodies
+- **Handle edge cases**: Ensure all possible conditions return appropriate responses
+- **Use proper HTTP status codes**: Return correct status codes (400, 401, 404, 500, etc.)
+
+### Code Quality Checks
+Before committing code, ensure:
+- [ ] `npm run build` passes without TypeScript errors
+- [ ] No ESLint warnings for unused variables/imports
+- [ ] All React hooks have proper dependencies
+- [ ] API routes handle all execution paths
+- [ ] All `any` types replaced with proper interfaces
+- [ ] Dynamic routes use async params correctly
+
 ## Non-Functional Requirements Implementation
 
 - **Performance**: Response time < 10 seconds (implement caching where needed)

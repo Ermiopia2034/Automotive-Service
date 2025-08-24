@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -167,7 +167,7 @@ export async function PATCH(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -222,7 +222,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: {
+      garageName?: string;
+      latitude?: number;
+      longitude?: number;
+      available?: boolean;
+    } = {};
     if (garageName !== undefined) updateData.garageName = garageName;
     if (latitude !== undefined) updateData.latitude = latitude;
     if (longitude !== undefined) updateData.longitude = longitude;

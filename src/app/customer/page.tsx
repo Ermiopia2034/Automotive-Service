@@ -47,10 +47,10 @@ export default function CustomerDashboard() {
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome, Customer!</h2>
               <p className="text-gray-600 mb-6">
-                Manage your profile, vehicles, and service requests.
+                Manage your profile, vehicles, and find nearby automotive services.
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
                 <button
                   onClick={() => router.push('/customer/profile')}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium"
@@ -63,12 +63,23 @@ export default function CustomerDashboard() {
                 >
                   My Vehicles
                 </button>
+                <button
+                  onClick={() => router.push('/customer/garages')}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
+                >
+                  Find Garages
+                </button>
               </div>
 
               <div className="mt-8 space-y-2">
-                <div className="text-sm text-gray-500">Coming soon:</div>
+                <div className="text-sm text-gray-500">New in Milestone 3:</div>
+                <ul className="text-sm text-green-600 space-y-1 font-medium">
+                  <li>• ✓ Locate nearby garages</li>
+                  <li>• ✓ Browse available services</li>
+                  <li>• ✓ Filter by distance and rating</li>
+                </ul>
+                <div className="text-sm text-gray-500 mt-4">Coming next:</div>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Locate nearby garages</li>
                   <li>• Request assistance</li>
                   <li>• Track service status</li>
                   <li>• Rate and review services</li>

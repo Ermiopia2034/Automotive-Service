@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,

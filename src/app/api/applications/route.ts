@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import { ApplicationType } from '@/generated/prisma';
 import type { MechanicApplicationData, GarageApplicationData, ApiResponse, Application } from '@/types/auth';
-import { hashPassword, validatePassword } from '@/utils/password';
+import { hashPassword } from '@/utils/password';
 
 interface JwtPayload {
   id: number;
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       let decoded: JwtPayload;
       try {
         decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-      } catch (error) {
+      } catch {
         return NextResponse.json<ApiResponse>(
           {
             success: false,
@@ -75,6 +75,15 @@ export async function POST(request: NextRequest) {
     } else if (type === ApplicationType.GARAGE) {
       return handleGarageApplication(body);
     }
+
+    // This should never be reached due to the type validation above
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        error: 'Invalid application type'
+      },
+      { status: 400 }
+    );
 
   } catch (error) {
     console.error('Application submission error:', error);
@@ -107,7 +116,7 @@ export async function GET(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -121,7 +130,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const status = searchParams.get('status'); // pending, approved, rejected
 
-    let whereClause: any = {};
+    let whereClause: Record<string, unknown> = {};
 
     // System admins can see all applications
     // Garage admins can see mechanic applications for their garages
@@ -225,7 +234,7 @@ export async function GET(request: NextRequest) {
   }
 }
 // Helper function to handle mechanic applications
-async function handleMechanicApplication(body: any, decoded: JwtPayload) {
+async function handleMechanicApplication(body: MechanicApplicationData, decoded: JwtPayload) {
   const { garageId }: MechanicApplicationData = body;
   
   if (!garageId) {
@@ -313,7 +322,7 @@ async function handleMechanicApplication(body: any, decoded: JwtPayload) {
 }
 
 // Helper function to handle garage applications (no authentication required)
-async function handleGarageApplication(body: any) {
+async function handleGarageApplication(body: GarageApplicationData) {
   const { garageName, latitude, longitude, adminEmail, adminUsername, adminPassword, adminFirstName, adminLastName }: GarageApplicationData = body;
   
   if (!garageName || latitude === undefined || longitude === undefined || !adminEmail || !adminUsername || !adminPassword || !adminFirstName || !adminLastName) {

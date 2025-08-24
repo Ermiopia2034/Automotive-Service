@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -125,7 +125,7 @@ export async function PATCH(request: NextRequest) {
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
-    } catch (error) {
+    } catch {
       return NextResponse.json<ApiResponse>(
         { 
           success: false,
@@ -150,7 +150,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: {
+      firstName?: string;
+      lastName?: string;
+      phoneNumber?: string | null;
+    } = {};
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber || null;

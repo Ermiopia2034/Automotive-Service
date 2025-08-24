@@ -109,9 +109,17 @@ All API endpoints follow RESTful conventions under `/api/` directory:
 /api/vehicles/        # Vehicle CRUD operations
 /api/applications/    # Business application system
 ├── [id]/            # Application approval/rejection
+
+/api/services/        # Service catalog management
+├── route            # List/create services
+└── [id]/           # Individual service operations
+
 /api/garages/
-├── route            # List approved garages
-└── profile/         # Garage profile management
+├── route            # List approved garages with location filtering
+├── profile/         # Garage profile management
+└── [id]/services/   # Garage-specific service management
+    ├── route        # Add/list garage services
+    └── [serviceId]/ # Individual garage service operations
 ```
 
 ### API Patterns
@@ -194,6 +202,11 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Forgot Password**: Email-based password reset request
 - **Reset Password**: Token-based password reset completion
 
+### Service Management Interfaces
+- **System Admin Services**: Complete service catalog management with CRUD operations and pricing
+- **Garage Admin Services**: Service assignment interface for garage-specific offerings
+- **Service Availability Toggle**: Real-time enable/disable functionality for garage services
+
 ### Profile Management Pages
 - **Customer Profile**: Personal information editing and vehicle management system
 - **Garage Profile**: Garage information management with location updates and mechanic roster
@@ -201,8 +214,16 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ### Administrative Interfaces
 - **System Admin Applications**: Centralized application review for garage and mechanic approvals
+- **System Admin Services**: Complete service catalog management with create, edit, delete operations
 - **Garage Admin Applications**: Mechanic application management for garage-specific approvals
+- **Garage Admin Services**: Service portfolio management with availability controls
 - **Enhanced Dashboards**: Modern card-based interfaces with feature status and navigation
+
+### Customer Discovery Interface
+- **Garage Finder**: GPS-integrated location-based garage discovery with distance calculations
+- **Advanced Filtering**: Search by name, distance radius, rating, and service availability
+- **Service Browsing**: View available services, pricing, and garage details per location
+- **Distance & Travel Time**: Real-time calculations with estimated travel duration
 
 ### UI Patterns
 - Tailwind CSS utility classes for consistent styling
@@ -259,7 +280,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ---
 
-## Current Implementation Status (Milestone 2)
+## Current Implementation Status (Milestone 3)
 
 ### Functional Features
 - **User Registration**: Customer self-registration with profile management
@@ -268,6 +289,10 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Profile Management**: Comprehensive profile editing for all user types
 - **Administrative Interfaces**: Application review systems for system and garage administrators
 - **Location Services**: GPS integration for garage registration and location updates
+- **Service Catalog Management**: Complete CRUD system for automotive services
+- **Garage Service Assignment**: Garage-specific service portfolio management
+- **Location-Based Discovery**: GPS-integrated garage finder with distance calculations
+- **Advanced Search & Filtering**: Multi-criteria garage discovery with real-time filtering
 
 ### API Endpoints Available
 - Customer registration and profile management
@@ -275,12 +300,16 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Business application submission and approval
 - Garage profile management with location services
 - Application status tracking and management
+- Service catalog management with pricing controls
+- Garage-service assignment and availability management
+- Location-based garage discovery with distance filtering
 
 ### User Workflows Implemented
-1. **Customer Journey**: Registration → Profile Setup → Vehicle Management
-2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Mechanic Recruitment
+1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing
+2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Service Portfolio Setup → Mechanic Recruitment
 3. **Mechanic Journey**: Application → Garage Admin Approval → Account Activation
-4. **Admin Journey**: Application Review → Approval/Rejection → User Management
+4. **Admin Journey**: Application Review → Approval/Rejection → User Management → Service Catalog Management
+5. **Service Management**: System Admin Creates Services → Garage Admin Assigns to Garage → Customer Discovers Services
 
 ---
 

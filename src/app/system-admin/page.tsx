@@ -69,6 +69,37 @@ export default function SystemAdminDashboard() {
               </div>
             </div>
 
+            {/* Service Management */}
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Services</dt>
+                      <dd className="text-lg font-medium text-gray-900">Manage</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-5 py-3">
+                <div className="text-sm">
+                  <button
+                    onClick={() => router.push('/system-admin/services')}
+                    className="font-medium text-green-600 hover:text-green-500"
+                  >
+                    Manage services
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Coming Soon Cards */}
             <div className="bg-white overflow-hidden shadow rounded-lg opacity-60">
               <div className="p-5">
@@ -122,25 +153,25 @@ export default function SystemAdminDashboard() {
             </div>
           </div>
 
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-blue-900 mb-2">Milestone 2 Features</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+          <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-green-900 mb-2">Milestone 3 Features - Service Discovery</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-800">
               <div>
                 <strong>✅ Completed:</strong>
                 <ul className="mt-2 space-y-1">
-                  <li>• User registration & profiles</li>
-                  <li>• Vehicle management</li>
-                  <li>• Application system</li>
-                  <li>• Approval workflows</li>
+                  <li>• Service catalog management</li>
+                  <li>• Garage-service assignments</li>
+                  <li>• Location-based garage finder</li>
+                  <li>• Distance calculations</li>
                 </ul>
               </div>
               <div>
                 <strong>🔄 Coming Next:</strong>
                 <ul className="mt-2 space-y-1">
-                  <li>• Service management</li>
-                  <li>• Garage discovery</li>
                   <li>• Service requests</li>
+                  <li>• Customer booking system</li>
                   <li>• Real-time notifications</li>
+                  <li>• Service tracking</li>
                 </ul>
               </div>
             </div>
