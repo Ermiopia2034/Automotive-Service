@@ -1,0 +1,274 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Users table (unified for all user types)
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  phoneNumber String?
+  userType    UserType
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  garagesOwned         Garage[]            @relation("GarageOwner")
+  mechanic            Mechanic?
+  vehicles            Vehicle[]
+  servicesCreated     Service[]           @relation("ServiceCreator")
+  customerRequests    ServiceRequest[]    @relation("CustomerRequests")
+  mechanicRequests    ServiceRequest[]    @relation("MechanicRequests")
+  vehicleStatuses     VehicleStatus[]
+  sentNotifications   Notification[]      @relation("NotificationSender")
+  receivedNotifications Notification[]    @relation("NotificationReceiver")
+  ratingsGiven        Rating[]            @relation("RatingCustomer")
+  ratingsReceived     Rating[]            @relation("RatingMechanic")
+  applications        Application[]
+
+  @@map("users")
+}
+
+// Garages table
+model Garage {
+  id         Int     @id @default(autoincrement())
+  garageName String
+  adminId    Int
+  latitude   Float
+  longitude  Float
+  rating     Float   @default(0)
+  available  Boolean @default(true)
+  removed    Boolean @default(false)
+  approved   Boolean @default(false)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  admin           User              @relation("GarageOwner", fields: [adminId], references: [id])
+  mechanics       Mechanic[]
+  services        GarageService[]
+  serviceRequests ServiceRequest[]
+  ratings         Rating[]
+  applications    Application[]
+
+  @@map("garages")
+}
+
+// Mechanics table
+model Mechanic {
+  id       Int     @id @default(autoincrement())
+  userId   Int     @unique
+  garageId Int
+  approved Boolean @default(false)
+  removed  Boolean @default(false)
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  garage Garage @relation(fields: [garageId], references: [id])
+
+  @@map("mechanics")
+}
+
+// Vehicles table
+model Vehicle {
+  id          Int    @id @default(autoincrement())
+  customerId  Int
+  vehicleType String
+  plateNumber String
+  plateCode   String
+  countryCode String
+  color       String
+
+  // Relations
+  customer        User             @relation(fields: [customerId], references: [id])
+  serviceRequests ServiceRequest[]
+
+  @@map("vehicles")
+}
+
+// Services table
+model Service {
+  id             Int     @id @default(autoincrement())
+  serviceName    String
+  estimatedPrice Float
+  removed        Boolean @default(false)
+  createdBy      Int
+
+  // Relations
+  creator           User                @relation("ServiceCreator", fields: [createdBy], references: [id])
+  garageServices    GarageService[]
+  ongoingServices   OngoingService[]
+  additionalServices AdditionalService[]
+
+  @@map("services")
+}
+
+// GarageServices (many-to-many)
+model GarageService {
+  id        Int     @id @default(autoincrement())
+  garageId  Int
+  serviceId Int
+  available Boolean @default(true)
+
+  // Relations
+  garage  Garage  @relation(fields: [garageId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@unique([garageId, serviceId])
+  @@map("garage_services")
+}
+
+// ServiceRequests table
+model ServiceRequest {
+  id         Int               @id @default(autoincrement())
+  customerId Int
+  garageId   Int
+  mechanicId Int?
+  vehicleId  Int
+  latitude   Float
+  longitude  Float
+  status     ServiceStatus     @default(PENDING)
+  createdAt  DateTime          @default(now())
+
+  // Relations
+  customer        User            @relation("CustomerRequests", fields: [customerId], references: [id])
+  mechanic        User?           @relation("MechanicRequests", fields: [mechanicId], references: [id])
+  garage          Garage          @relation(fields: [garageId], references: [id])
+  vehicle         Vehicle         @relation(fields: [vehicleId], references: [id])
+  vehicleStatuses VehicleStatus[]
+
+  @@map("service_requests")
+}
+
+// VehicleStatus table
+model VehicleStatus {
+  id               Int      @id @default(autoincrement())
+  serviceRequestId Int
+  mechanicId       Int
+  description      String
+  approved         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  // Relations
+  serviceRequest     ServiceRequest      @relation(fields: [serviceRequestId], references: [id])
+  mechanic           User                @relation(fields: [mechanicId], references: [id])
+  ongoingServices    OngoingService[]
+  additionalServices AdditionalService[]
+
+  @@map("vehicle_status")
+}
+
+// OngoingServices table
+model OngoingService {
+  id              Int      @id @default(autoincrement())
+  statusId        Int
+  serviceId       Int
+  expectedDate    DateTime
+  serviceFinished Boolean  @default(false)
+  totalPrice      Float    @default(0)
+
+  // Relations
+  status  VehicleStatus @relation(fields: [statusId], references: [id])
+  service Service       @relation(fields: [serviceId], references: [id])
+
+  @@map("ongoing_services")
+}
+
+// AdditionalServices table
+model AdditionalService {
+  id         Int     @id @default(autoincrement())
+  statusId   Int
+  serviceId  Int
+  approved   Boolean @default(false)
+  totalPrice Float   @default(0)
+
+  // Relations
+  status  VehicleStatus @relation(fields: [statusId], references: [id])
+  service Service       @relation(fields: [serviceId], references: [id])
+
+  @@map("additional_services")
+}
+
+// Notifications table
+model Notification {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  type       String
+  title      String
+  message    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  sender   User @relation("NotificationSender", fields: [senderId], references: [id])
+  receiver User @relation("NotificationReceiver", fields: [receiverId], references: [id])
+
+  @@map("notifications")
+}
+
+// Ratings table
+model Rating {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  garageId   Int
+  mechanicId Int?
+  rating     Int // 1-10 scale
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  customer User    @relation("RatingCustomer", fields: [customerId], references: [id])
+  garage   Garage  @relation(fields: [garageId], references: [id])
+  mechanic User?   @relation("RatingMechanic", fields: [mechanicId], references: [id])
+
+  @@map("ratings")
+}
+
+// Applications table
+model Application {
+  id              Int             @id @default(autoincrement())
+  applicantId     Int
+  applicationType ApplicationType
+  garageId        Int?
+  approved        Boolean?
+  createdAt       DateTime        @default(now())
+
+  // Relations
+  applicant User    @relation(fields: [applicantId], references: [id])
+  garage    Garage? @relation(fields: [garageId], references: [id])
+
+  @@map("applications")
+}
+
+// Enums
+enum UserType {
+  CUSTOMER
+  MECHANIC
+  GARAGE_ADMIN
+  SYSTEM_ADMIN
+}
+
+enum ServiceStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ApplicationType {
+  GARAGE
+  MECHANIC
+}

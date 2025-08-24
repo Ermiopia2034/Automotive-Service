@@ -1,0 +1,1587 @@
+﻿
+
+
+
+
+Web Based Automotive Service Center Locating and Management System
+Requirement Elicitation and Analysis Document in Partial Fulfillment of the Requirements for the B.Sc. Degree in Computer Science
+                                     
+                                             
+
+          
+         
+     
+         
+     
+     Submission Date-  Aug, 2025
+Web Based Automotive Service Center Locating and Management System
+
+
+     Prepared By 
+           Amanuel Lakachew               15783/22
+           Simaf Abdulkerim	           15816/22
+           Samson Habtamu		15901/22
+			        Zena Wasie                              15789/22
+
+               
+     Approved by (Name and signature):
+         Advisor: _________________________
+Examiner: ________________________
+
+
+
+
+
+
+
+
+Acknowledgement
+
+     We wish to express our sincere gratitude to our project advisor, mr Ephrem., for his guidance, continuous support and encouragement throughout the completion of this final year project. A warm thank is extended to lecturers at microlink for sharing their resources, opinions, knowledge, experience and skills in programming and development methodology, so generously. We would also like to thank our family, friends in Microlink and our fellow classmates who have offered their assistance in completing this project.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Contents
+List of Tables	5
+List of Figures	7
+Chapter 1	1
+1. Introduction / Background	1
+2. Statement of the Problem	2
+3.  Objective	2
+3.1. General objective	2
+3.2. Specific objective	2
+4. Scope of the Project	3
+5. Limitations	3
+6. Methodologies and Tools	3
+7. Significance and Beneficiaries	4
+Chapter 2	5
+2. System Requirement Specification Document	5
+2.1. Introduction	5
+2.2. Purpose	5
+2.3.  Project Overview	5
+2.4. Existing System	6
+2.5. Proposed System	6
+2.5.1. Functional Requirements	6
+2.5.2. Non-Functional Requirement	9
+2.6. System Model	9
+2.6.1. Use Case	9
+2.6.1.2. Use Case Diagram	11
+2.6.2. Class Diagram	38
+2.6.3. Sequence Diagram	39
+2.6.4. Activity Diagram	62
+Chapter 3	77
+3. System Design Document	77
+3.1. Introduction	77
+3.2. Purpose of System Design Document	77
+3.3. Design Goal	77
+3.4. Architectural Design	78
+3.5. Subsystem Decomposition	80
+3.5.1. Accounts Subsystem	81
+1.5.2.	Services Subsystem	81
+1.5.3.	Vehicles Subsystem	82
+1.5.4.	Notifications subsystem	82
+3.6. Hardware/Software Mapping	83
+3.7. Persistent Data Management	84
+3.8. Access Control	85
+3.9. Boundary Condition	86
+Chapter 4	87
+4. Object Design Document	87
+4.1. Object Design Trade-offs	87
+4.2. Interface Documentation Guidelines	87
+4.3. Package	88
+4.4. Class Interface	91
+Chapter 5	109
+5	Implementation	109
+5.1. Tools	109
+5.2. Testing	109
+5.2.1. Ad-hoc Testing	109
+5.2.2. Back-end Testing	109
+5.2.3. Integration Testing	110
+5.2.4. Unit Testing	110
+5.3.	Major Class Code	111
+Reference	114
+
+
+
+List of Tables
+Table 2.6.1.3- 1 - Use Case Description for Login: Customer	14
+Table 2.6.1.3- 2 - Use Case Description for Login: Mechanic	14
+Table 2.6.1.3- 3 - Use Case Description for Login: Garage Admin	14
+Table 2.6.1.3- 4 - Use Case Description for Login: System Admin	15
+Table 2.6.1.3- 5 - Use Case Description for Change Password:  Customer	15
+Table 2.6.1.3- 6 - Use Case Description for Change Password:  Mechanic	16
+Table 2.6.1.3- 7 - Use Case Description for Change Password:  Garage Admin	17
+Table 2.6.1.3- 8 - Use Case Description for Change Password:  System Admin	17
+Table 2.6.1.3- 9 - Use Case Description for Forgot Password:  Customer	18
+Table 2.6.1.3- 10 - Use Case Description for Forgot Password:  Mechanic	18
+Table 2.6.1.3- 11 - Use Case Description for Forgot Password:  Garage Admin	19
+Table 2.6.1.3- 12 - Use Case Description for Forgot Password:  System Admin	19
+Table 2.6.1.3- 13 - Use Case Description for Customer Registration	20
+Table 2.6.1.3- 14 - Use Case Description for Vehicle Registration	21
+Table 2.6.1.3- 15 - Use Case Description for Locating Garages	21
+Table 2.6.1.3- 16 - Use Case Description for Sending Assistance Request	21
+Table 2.6.1.3- 17 - Use Case Description for Viewing Status of the Service	22
+Table 2.6.1.3- 18 - Use Case Description for Comment and Rate	23
+Table 2.6.1.3- 19 - Use Case Description for Mechanic Registration	23
+Table 2.6.1.3- 20 - Use Case Description for Approving Mechanic	24
+Table 2.6.1.3- 21 - Use Case Description for Applying for Membership	24
+Table 2.6.1.3- 22 - Use Case Description for Approving Application of Garages	25
+Table 2.6.1.3- 23 - Use Case Description for Adding Services	26
+Table 2.6.1.3- 24 - Use Case Description for Updating Services	26
+Table 2.6.1.3- 25 - Use Case Description for Removing Services	27
+Table 2.6.1.3- 26 - Use Case Description for Viewing Services	27
+Table 2.6.1.3- 27 - Use Case Description for Reviewing Mechanic	28
+Table 2.6.1.3- 28 - Use Case Description for Removing Mechanic	28
+Table 2.6.1.3- 29 - Use Case Description for Viewing Garages	29
+Table 2.6.1.3- 30 - Use Case Description for Reviewing Garages	29
+Table 2.6.1.3- 31 - Use Case Description for Removing Garages	30
+Table 2.6.1.3- 32 - Use Case Description for Accepting Additional Request	30
+Table 2.6.1.3- 33 - Use Case Description for Receiving Notification: Customer	31
+Table 2.6.1.3- 34 - Use Case Description for Acknowledgement of the Status of the Vehicle	31
+Table 2.6.1.3- 35 - Use Case Description Additional Services Needed	32
+Table 2.6.1.3- 36 - Use Case Description for Creating Status of the Service	33
+Table 2.6.1.3- 37 - Use Case Description for Updating Status of the Service	33
+Table 2.6.1.3- 38 - Use Case Description for Updating Status of the Service	34
+Table 2.6.1.3- 39 - Use Case Description for Viewing Status of the Service: Mechanic	34
+Table 2.6.1.3- 40 - Use Case Description for Receiving Notification: Mechanic	35
+Table 2.6.1.3- 41 - Use Case Description for Create Service List	35
+Table 2.6.1.3- 42 - Use Case Description for Update Service List	36
+Table 2.6.1.3- 43 - Use Case Description for Remove Service List	36
+Table 2.6.1.3- 44 - Use Case Description for Sending Additional services	37
+Table 2.6.1.3- 45 - Use Case Description for Sending Notification	37
+Table 2.6.1.3- 46 - Use Case Description for Logout	37
+Table 3.8- 1 - Access Control....................................................................................................................86
+
+Table 4.4- 1 - Applications Class	92
+Table 4.4- 2 - Garage Class	93
+Table 4.4- 3 - Customer Class	95
+Table 4.4- 4 - Mechanic Class	96
+Table 4.4- 5 - System Admin Class	98
+Table 0-6 - Vehicle Class .....................................................................................................................101
+Table 4.4- 7 - Status of Vehicle Class...................................................................................................103
+Table 4.4- 8 - Service Class..................................................................................................................104
+Table 0-9 - Ongoing Service Class ......................................................................................................106
+Table 4.4- 10 - Additional Services Class............................................................................................107
+Table 4.4- 11 - Notification Class.........................................................................................................110
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+List of Figures
+Figure 2.6.1.2- 1 - Use Case Diagram	11
+
+Figure 2.6.2- 1 - Class Diagram	38
+
+Figure 2.6.3- 1 - Sequence Diagram for Login: Customer	39
+Figure 2.6.3- 2 - Sequence Diagram for Login: Mechanic	39
+Figure 2.6.3- 3 - Sequence Diagram for Login: Garage Admin	40
+Figure 2.6.3- 4 - Sequence Diagram for Login: System Admin	40
+Figure 2.6.3- 5 - Sequence Diagram for Change Password: Customer	41
+Figure 2.6.3- 6 - Sequence Diagram for Change Password: Mechanic	41
+Figure 2.6.3- 7 - Sequence Diagram for Change Password: Garage Admin	42
+Figure 2.6.3- 8 - Sequence Diagram for Change Password: System Admin	42
+Figure 2.6.3- 9 - Sequence Diagram for Forgot Password: Customer	43
+Figure 2.6.3- 10 - Sequence Diagram for Forgot Password: Mechanic	43
+Figure 2.6.3- 11 - Sequence Diagram for Forgot Password: Garage Admin	44
+Figure 2.6.3- 12 - Sequence Diagram for Forgot Password: System Admin	44
+Figure 2.6.3- 13 - Sequence Diagram for Register Customer	45
+Figure 2.6.3- 14 - Sequence Diagram for Register Vehicle	45
+Figure 2.6.3- 15- Sequence Diagram for Locate Garage	46
+Figure 2.6.3- 16 - Sequence Diagram for Send Assistance Request	46
+Figure 2.6.3- 17 - Sequence Diagram for View Status of the Service	47
+Figure 2.6.3- 18 - Sequence Diagram for Comment and Rate	47
+Figure 2.6.3- 19 - Sequence Diagram for Register Mechanic	48
+Figure 2.6.3- 20 - Sequence Diagram for Approve Mechanic	48
+Figure 2.6.3- 21 - Sequence Diagram for Apply	49
+Figure 2.6.3- 22 - Sequence Diagram for Approve Application	49
+Figure 2.6.3- 23 - Sequence Diagram for Add Services	50
+Figure 2.6.3- 24- Sequence Diagram for Update Services	50
+Figure 2.6.3- 25 - Sequence Diagram for Remove Services	51
+Figure 2.6.3- 26 - Sequence Diagram for View Services	51
+Figure 2.6.3- 27 - Sequence Diagram for Review Mechanic	52
+Figure 2.6.3- 28 - Sequence Diagram for Remove Mechanic	52
+Figure 2.6.3- 29 - Sequence Diagram for View Garage	53
+Figure 2.6.3- 30 - Sequence Diagram for Review Garage	53
+Figure 2.6.3- 31 - Sequence Diagram for Remove Garage	54
+Figure 2.6.3- 32 - Sequence Diagram for Accept Additional Request	54
+Figure 2.6.3- 33 - Sequence Diagram for Receive Notification: Customer	55
+Figure 2.6.3- 34 - Sequence Diagram for Acknowledgement of the Status of the Vehicle	55
+Figure 2.6.3- 35 - Sequence Diagram for Additional Services Needed	56
+Figure 2.6.3- 36 - Sequence Diagram for Create Status of the Service	56
+Figure 2.6.3- 37 - Sequence Diagram for Update Status of the Service	57
+Figure 2.6.3- 38- Sequence Diagram for Create Services	57
+Figure 2.6.3- 39- Sequence Diagram for View Status of the Service: Mechanic	58
+Figure 2.6.3- 40 - Sequence Diagram for  Receive Notification: Mechanic	58
+Figure 2.6.3- 41 - Sequence Diagram for  Create Service List	59
+Figure 2.6.3- 42 - Sequence Diagram for  Update Service List	59
+Figure 2.6.3- 43 - Sequence Diagram for  Remove Service List	60
+Figure 2.6.3- 44- Sequence Diagram for Send Additional Services	60
+Figure 2.6.3- 45 - Sequence Diagram for Logout	61
+
+Figure 2.6.4- 1 - Activity Diagram for Login	64
+Figure 2.6.4- 2 - Activity Diagram for Change Password	65
+Figure 2.6.4- 3 - Activity Diagram for Forget Password	65
+Figure 2.6.4- 4 - Activity Diagram for Locate Garage	66
+Figure 2.6.4- 5 - Activity Diagram for Send Assistance Request	66
+Figure 2.6.4- 6 - Activity Diagram for View Status of the Service: Customer	66
+Figure 2.6.4- 7 - Activity Diagram for Register Customer	67
+Figure 2.6.4- 8 - Activity Diagram for Register Vehicle	67
+Figure 2.6.4- 9 - Activity Diagram for Comment and Rate	68
+Figure 2.6.4- 10 - Activity Diagram for Register Mechanic	68
+Figure 2.6.4- 11 - Activity Diagram for Approve Mechanic	69
+Figure 2.6.4- 12 - Activity Diagram for Add Services	69
+Figure 2.6.4- 13 - Activity Diagram for Update Services	70
+Figure 2.6.4- 14 - Activity Diagram for Remove Services	70
+Figure 2.6.4- 15 - Activity Diagram for View Services	71
+Figure 2.6.4- 16 - Activity Diagram for Review Mechanic	71
+Figure 2.6.4- 17 - Activity Diagram for Remove Mechanic	71
+Figure 2.6.4- 18 - Activity Diagram for View Garage	72
+Figure 2.6.4- 19 - Activity Diagram for Review Garage	72
+Figure 2.6.4- 20 - Activity Diagram for Remove Garage	72
+Figure 2.6.4- 21 - Activity Diagram for Accept Additional Request	73
+Figure 2.6.4- 22 - Activity Diagram for Receive Notification: Customer	73
+Figure 2.6.4- 23 - Activity Diagram for Acknowledgement of the Status of the Vehicle	73
+Figure 2.6.4- 24 - Activity Diagram for Additional Services Needed	74
+Figure 2.6.4- 25 - Activity Diagram for Create Status of the Service	74
+Figure 2.6.4- 26 - Activity Diagram for Update Status of the Service	74
+Figure 2.6.4- 27 - Activity Diagram for Create Service	75
+Figure 2.6.4- 28 - Activity Diagram for View Status of the Service	75
+Figure 2.6.4- 29 - Activity Diagram for Receive Notification: Mechanic	75
+Figure 2.6.4- 30 - Activity Diagram for Create Service List	76
+Figure 2.6.4- 31 - Activity Diagram for Update Service List	76
+Figure 2.6.4- 32 - Activity Diagram for Remove Service List	77
+Figure 2.6.4- 33 - Activity Diagram for Send Additional Services	77
+Figure 2.6.4- 34 - Activity Diagram for Logout	78
+
+Figure 3.4- 1 - Architectural Design	81
+
+Figure 3.5- 1 - Subsystem Decomposition Diagram	82
+
+Figure 3.5.1- 1 - Accounts Subsystem	83
+Figure 3.5.1- 2 - Services Subsystem	83
+Figure 3.5.1- 3 - Vehicle Subsystem	84
+Figure 3.5.1- 4 - Notifications Subsystem	84
+
+Figure 3.6- 1 - Hardware/Software Mapping	85
+
+Figure 3.7- 1 - Design Class Diagram	86
+
+Figure 4.3- 1 - Controllers	90
+Figure 4.3- 2 - Models	90
+Figure 4.3- 3 - Customers Views	91
+Figure 4.3- 4 - Mechanics Views	91
+Figure 4.3- 5 - Garages Views	91
+Figure 4.3- 6 - System Admin Views	92
+
+Figure 4.4- 1 - Application Class	93
+Figure 4.4- 2 - Garage Class	94
+Figure 4.4- 3 - Customer Class	96
+Figure 4.4- 4 - Mechanic Class	97
+Figure 4.4- 5 - System Admin Class	99
+Figure 4.4- 6 - Vehicle Class	100
+Figure 4.4- 7 - Status of Vehicle Class	102
+Figure 4.4- 8 - Service Class	103
+Figure 4.4- 9 - Ongoing Service Class	105
+Figure 4.4- 10 - Additional Service Class	107
+Figure 4.4- 11 - Notification Class	109
+
+
+
+
+
+
+
+
+
+
+
+
+
+Executive Summary
+     Throughout the design of   Web Based Automotive Service Center Locating and Management System, we have worked hard to make the system reliable and high performing. The different programming languages used to code our application were specifically chosen so as to make the code easy and concise.  Our implementation guidelines have helped as to use namespaces in a consistent manner to which degree any new developing glancing through the code can immediately understand the system and all its components.
+    The reason we chose the Web Based Automotive Service Center Locating and Management System is because we noticed a big difference in automation and customer handling in the garages we see today. We hope and worked hard to develop a system which is not only easy to use as a customer and also make the processes of garages day to day activities easy, fast, and reliable using the technological advancements we have today.
+     Lastly, we hope in the designing of this system that we have solve redundancy and highly extensive tasks of manual systems by automating them and there is a big room for the system to grow and evolve.
+Chapter 1
+1. Introduction / Background
+
+     We use some means of transportation in our daily lives to get to where we want to go. One of our main modes of transportation are cars. Whether you own car or take public transportation or whether drivers take the necessary precautions, this car at some point might encounter mechanical issues or traffic accidents can happen. However, in the unfortunate and unforeseen event of a breakdown or road accidents what is we need is an immediate solution so as to avoid unnecessary complication present with being stranded in the middle of the road. 
+     Vehicle maintenance is a critical and vital operational component that determines vehicle performance and service longevity. The severity of vehicle usage has been defined as one of the key factors that determine vehicle maintenance requirements. Ethiopia is a tropical country with intense poor road network and quality. These factors severely affect car performance and raises maintenance demands towards ensuring vehicle reliability and optimum performance. 
+     Automobile care or maintenance describes the act of inspecting or testing the condition of car subsystems (E.g., engine) and servicing or replacing parts and fluids. Regular maintenance is critical to ensure the safety, reliability, drivability, comfort and longevity of a car. During preventive maintenance, a number of parts are replaced to avoid major damage or for safety reasons, e.g., timing belt replacement.
+     To overcome all the drawbacks of the traditional way of Automobile Servicing, a techno-based solution is required where the complexities in the process of management for automobile services are reduced for the convenience of automobile owners and the service provider. Specifically, car owners can locate all the nearby garages in case of a car breakdown in an unknown location. 
+     In Ethiopia, the development of roadside assistance is most often done through the driver's personal mechanic or the nearby garages. As most of the vehicles in Ethiopia are not brand new the probability of breakdowns and accidents is extremely high.
+
+
+
+
+
+
+2. Statement of the Problem
+
+     Vehicular issues and car traffic accidents happen every day. The problem might be of a simple nature that the drivers can fix themselves or it might require mechanics. Assisting drivers that experiencing troubles with their vehicle is not done speedily. Most drivers experiencing these issues are greatly inconvenienced until they receive assistance. Some of the problems of the existing system are listed below.
+
+> There is no online system available for requesting assistance//based on their location
+> Waiting for tow truck service is time consuming
+> Searching and finding nearby garage is difficult
+> There are security issues related with leaving cars at the scene of the problem. 
+> The whole process requires a lot of time and effort
+
+3.  Objective
+3.1. General objective
+
+     This project aims to develop a web-based system that enables car owners to find the nearby garage, that is qualified by the application standard, and tow truck service providers in the case of car breakdown or traffic accident. 
+3.2. Specific objective
+     The specific objectives in this paper include the following:
+> Automation of the system
+> We will review research papers on similar subject so that it will be additional resource for our project
+> Develop a system that manage customer access to the system
+> Develop a system that locate nearby garage
+> Develop a system that send notification to the customer at various stages
+> Develop a system that allows a customer to send request
+> Develop a system that a customer can check the status of the system
+> Develop a system that provide information about the service providers
+> Develop a system that accepts customer feedback
+> Develop databases which stores customer detail, garage's services etc.
+
+4. Scope of the Project
+
+     The system is limited to a web based automotive maintenance information system. The proposed system will be bound by:
+
+> Managing user's access to the system
+> Search and locate nearby garages
+> Provide information about the garages
+> Customers can request service, additional services
+> Customers can check the status of the services
+>  A system must send a notification to customer 
+> The system stores all the services provided for the customers and customer data in the database.
+
+6. Methodologies and Tools
+
+     The project will be developed using waterfall software process model. Waterfall methodology is a linear project management approach, where stakeholder and customer requirements are gathered at the beginning of the project, and then a sequential project plan is created to accommodate those requirements. Its main purpose has always been to help internal teams move more efficiently through the phases of a project, which can work well for the software world. For implementing our proposed system, we decide to use object-oriented methodology. Tools and environments used in this project include 
+
+> Visual studio
+> Visual studio code
+> .NET Core framework
+> React JS
+> Redux 
+> C#
+> DB SQL 
+
+7. Significance and Beneficiaries
+
+     The proposed system will benefit any car owner by eliminating the time and effort to get service at venue. It will be easy to customers that request assistance. In addition, the proposed system will benefit garage owners by advertising their services and also allow better management.
+
+Customer:
+> Provides customers an easy and reliable system when their cars break down.
+> Customers will be able to locate nearby garages easily.
+Garages:
+> Provides job opportunities to garages.
+> Garages will automate their systems.
+
+
+
+Chapter 2
+2. System Requirement Specification Document
+
+2.1. Introduction 
+
+     Vehicles are vital part of everyday life. Regardless of where you live, what type of lifestyle you lead, work you do or other factors, vehicles are highly important. As important as they are there is the always the possibility of breakdowns and the risk of accidents. In such situations the ability to find help is crucial. Regular maintenance reduces the probability of a car breakdown and your car will be in great condition to support your journey. Checking treads of tires and air pressure is important for your vehicle for a strong grip on the road. It also plays an important role in the comfort of the journey. Automotive Service Center Locating and Management System is a system used to customers to send assistance while breakdown of car in the middle of nowhere. It is rapidly replacing traditional paper based manual system. It is essential for minimizing vehicle downtime, reduce costs and avoid breakdowns that result in safety and security risks. It allows us to achieve this goal in an easy and fast way. 
+
+2.2. Purpose
+
+     The purpose of this system is to provide an easy-to-use Automotive Service Center Locating system. It strives to deliver a system where it supports in keeping records of registered customers and their memberships, vetted vehicle service providers(garages), and allows easy communication between management and its members. The system provides a scheme which handles the information of the people who join the as members. Data will be stored in a secure database. The system is strong enough to withstand regressive yearly operations under conditions where the database is maintained and cleared over a certain time of span.
+
+2.3.  Project Overview
+
+      We intend to develop an Automotive Service Center solution developed to enable customers send request and get mechanic assistance based on their location. The system should be able to manage different customers, to send request, view garage information, request additional service, comment and rate, etc.
+
+2.4. Existing System
+
+     The existing vehicle maintenance management system is very primitive and informal. Almost all of the garage in Ethiopia uses manual system. In fact, these garages, most of them, they don't maintain the records of customers, vehicle, and the history of the problem associated with the vehicles. Such kind of information though they are crucially important, they are not recorded at all or recorded manually on a paper which has a lot of inconvenience and risk of being damaged or lost
+The following are the characteristics of the current system:
+* All information is recorded manually and on paper.
+* Customers have no privilege of locating nearby garage 
+* There is no such a way to check the status of the service online
+
+     As seen from the characteristics above, the current system requires a lot of manpower as well as trust. Many problems can arise from both the garage companies' and the customers' side.
+Problem occurring from the garage company's side:
+* Most of the garage companies doesn't have a website
+* They can't advertise their services and new services
+* Vulnerable storage of documents
+* It's a time-consuming process
+* The garage admin can't check the service provided with detail information
+Problem occurring from the customer side:
+* Most of the customers have to wait a long time for the assistance (personal mechanic) because there is no other option
+* There is no website that locate the nearby garage with detail information based on the customer location
+* It's hard to leave for other garage service provider because of the security issue
+* It takes a lot time and effort
+
+2.5. Proposed System
+
+2.5.1. Functional Requirements
+
+     Functional requirements are those that refer to the functionality and the intended behaviors of the system, i.e., what services it will provide to the user. Statements of services should provide, how the system should react to particular inputs, and how the system should behave in particular situations. This behavior and functionality may be expressed as services, tasks or functions that the system is required to perform. The following are the functional requirements of the proposed system:
+
+Customer 
+FR1: The system should let a customer create an account(register) using their email address and other relevant information.
+FR2: The system should let the customer register his/her vehicular information.
+FR3: The system should allow the customer to login to the system.
+FR4: The system should also provide email address and password recovery function.
+FR5: The user must be allowed to change his/her password at any given time.
+FR6: The system should enable customer to view a list of nearby garages. 
+FR7: The customer will be able to send request for service.
+FR8: The customer will be able to see the status of his/her vehicle that is in service.
+FR9:  The customer will be able to comment and rate about the service he/she has received.
+FR10: The customer will be able to send acknowledgement message to confirm that he/she has requested additional service.
+FR11: The customer will receive notifications about the status of the service.
+FR12: The customer will be able to respond to additional requests that he/she might receive.
+FR13: The system should allow the customer to log out from the system.
+Administrator
+FR1: The system should require login before providing any function for administrator.
+FR2: The system should display an error message "Incorrect password or username" when administrator try to login with wrong password or username.
+FR3: The system should allow the system admin to reset his password when he forgets.
+FR4: The system should allow the system admin to view and edit his profile. 
+FR5: The system should allow the system admin to add/view /remove/update garages.
+FR6: The system should allow the system admin to approve/review/remove garage services.
+FR7: The system should allow the system admin to add/view/update/delete services information.
+FR8: The system should allow the system admin to view feedback from users.
+FR9: The system should allow the system admin to check applications sent by the garage admin requesting approval.
+FR10: The system should allow the system admin to log out from the admin interface.
+Mechanic
+FR1: The system should require login before providing any function for the mechanic.
+FR2: The system should display an error message "Incorrect password or username" when the mechanic tries to login with wrong password or username.
+FR3: The system should allow the mechanic to reset his password when he forgets.
+FR4: The system should allow the mechanic to notify the customer about additional problems that the vehicle might have.
+FR5: The system should allow the mechanic to receive notification confirmation from the customer accepting the request for additional services.
+FR6: The system should allow the mechanic to notify the customer about the status of the services.
+FR7: The system should allow the mechanic to view feedback from users.
+FR8: The system should allow the mechanic to create services.
+FR10: The system should allow the mechanic to log out from the system.
+Garage Admin
+FR1: The system should require login before providing any function for administrator.
+FR2: The system should display an error message "Incorrect password or username" when the garage admin tries to login with wrong password or username.
+FR3: The system should allow the garage admin to reset his password when he forgets.
+FR4: The system should allow the garage admin to review/add/remove mechanics. 
+FR5: The system should allow the garage admin to add/view/update/delete garages.
+FR6: The system should allow the garage admin to approve/view/delete garage services.
+FR7: The system should allow the garage admin to add/view/update/delete services information.
+FR8: The system should allow the garage admin to view feedback from users.
+FR9: The system should allow the garage admin to send applications to the system admin requesting membership of the system.
+FR10: The system should allow the garage admin to log out from the admin interface.
+2.5.2. Non-Functional Requirement
+
+     These are quality requirements that stipulate the performance levels required of the system for various kinds of activities.
+1. Performance: The response time of the service center should be less than 10 seconds in the average. Response time refers to the waiting time while the system accesses, queries and retrieves the information from the databases.
+2. Availability: The service center system should be available 12 hours a day, 7 days a week.
+The service center system should provide real-time information.
+3. Usability: The service center should provide an easy-to-use graphical interface similar to other reservation systems so that users do not have to learn a new style of interaction.
+4. Security: The system should be secure and must protect the database.
+
+2.6. System Model
+
+     System modeling is the process of developing abstract models of a system, with each model presenting a different view of that system. It is about representing the system using graphical notation (Unified Modeling Language). The artifacts of the system modeling are:
+* Use Case models
+* Class Diagram
+* Sequence Diagram
+* Activity Diagram
+
+2.6.1. Use Case 
+2.6.1.1. Use Case Modeling              
+
+     A use case is a sequence of action that provides a measurable value to an actor. Another way to look at it is that a use case describes a way to which a real world to interacts with the system. An essential use case sometimes called a business the case is simplified, abstract, generalized use case that captures the intention of the user in a technology and implementation independent manner. The case models are used to document the behavioral (functional) requirement of a system or the "what" of the system. A fully documented essential use case is a structured narrative, expressed in the language of the application domain and of users, comprising a simplified, abstract, technology-free and implementation-independent description of one task or interaction.
+     A use case diagram illustrates a set of use cases for a system, the actors of these use cases, the relations between the actors and these use cases, and the relations among the use cases it also describes a function provided by the system as a set of events that yield a visible result for the actors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.6.1.2. Use Case Diagram
+
+
+Figure 2.6.1.2- 1 - Use Case Diagram
+2.6.1.3. Use Case Description
+
+     The use case document ties the business needs of the system to design and implementation of the system. It is an effective tool to help ensure that the system being developed meets the business requirements for the system. The following are use cases for the service center locating and management system.
+Use Cases:
+1. Login: Customer
+2. Login: Mechanic
+3. Login: Garage Admin
+4. Login: System Admin
+5. Change Password: Customer
+6. Change Password: Mechanic
+7. Change Password: Garage Admin
+8. Change Password: System Admin
+9. Forgot Password: Customer
+10. Forgot Password: Mechanic
+11. Forgot Password: Garage Admin
+12. Forgot Password: System Admin
+13. Register Customer
+14. Register Vehicle
+15. Locate Garage
+16. Send Assistance Request
+17. View Status of the Service: Customer
+18. Comment & Rate 
+19. Register Mechanic
+20. Approve Mechanic
+21. Apply
+22. Approve Application 
+23. Add Services
+24. Update Services
+25. Remove Services
+26. View Services
+27. Review Mechanic
+28. Remove Mechanic
+29. View Garage
+30. Review Garage
+31. Remove Garage
+32. Accept Additional Request
+33. Receive Notification
+34. Acknowledgment of the Status of the Vehicle
+35. Additional Services Needed
+36. Create Status of the Service
+37. Update Status of the Service
+38. Create Services
+39. View Status of the Service: Mechanic
+40. Receive Notification: Mechanic
+41. Create Service List
+42. Update Service List 
+43. Remove Service List
+44. Send Additional Services
+45. Send Notification
+46. Logout
+
+Actor: is a person, or external system that plays a role in one or more interaction with the system. And represented with a stick figure, here are the actors of the system
+1. Customer
+2. Mechanic
+3. Garage Admin
+4. System Admin
+Association: represented as a line between an actor and a use case represents that the actor initiates and/or participates in the process.
+Include: is a directed relationship between two use cases which is the included use case is required, not optional.
+Extend: is a directed relationship between two use cases which is the included use case is optional, not required.
+1. Login: Customer
+Use-Case NumberUC-01Use-Case NameLoginActorCustomer DescriptionThis use case describes how customers Login to the system.Precondition1. The customer accesses customer's login page.
+2. The system presents the Customer's "Homepage" that consists of Signup, Login, and About Us.Flow of Events1. The user selects the login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user fills the form and selects the login button.Alternative Flow3A. the system reports that the user name or password is incorrectPost-ConditionThe system acknowledges that the user has successfully logged in. Table 2.6.1.3- 1 - Use Case Description for Login: Customer
+2. Login: Mechanic
+Use-Case NumberUC-02Use-Case NameLoginActorMechanicDescriptionThis use case describes how the Mechanic Login to the system.Precondition1. The mechanic accesses mechanic's login page.
+2. The system presents Mechanic's the "Homepage" that consists of Signup, Login, Apply, and About Us.Flow of Events1. The user selects the login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user fills the form and selects the login button.Alternative Flow3A. the system reports that the user name or password is incorrectPost-ConditionThe system acknowledges that the user has successfully logged in. Table 2.6.1.3- 2 - Use Case Description for Login: Mechanic
+3. Login: Garage Admin
+Use-Case NumberUC-03Use-Case NameLoginActorGarage AdminDescriptionThis use case describes how the Garage Admin Login to the system.Precondition1. The garage admin has garage Admin's login page.
+2. The system presents the garage admin's "Homepage" that consists of Signup, Login, Apply, and About Us.Flow of Events1. The user selects the login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user fills the form and selects the login button.Alternative Flow3A. the system reports that the username or password is incorrectPost-ConditionThe system acknowledges that the user has successfully logged in. Table 2.6.1.3- 3 - Use Case Description for Login: Garage Admin
+4. Login: System Admin
+Use-Case NumberUC-04Use-Case NameLoginActorSystem AdminDescriptionThis use case describes how the users Login to the system.Precondition1. The system admin has system admin's login page.
+2. The system presents the System Admin's "Login page" that consists of Signup, Login, Apply, and About Us.Flow of Events1. The user selects the login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user fills the form and selects the login button.Alternative Flow3A. the system reports that the user name or password is incorrect
+Post-ConditionThe system acknowledges that the user has successfully logged in. Table 2.6.1.3- 4 - Use Case Description for Login: System Admin
+5. Change Password: Customer
+Use-Case NumberUC-05Use-Case NameChange PasswordActorCustomerDescriptionThis use case describes how the users change their passwords.Precondition1. The user has logged in.
+2. The system presents the Customer's "Homepage" with the Settings button.Flow of Events1. The user selects the settings button.
+2. The system presents the "Settings page" with Logout and Change password buttons.
+3. The user selects the Change password button.
+4. The system presents the "Change password" page prompting the user for the new password two times.
+5. The user enters the new password two times and selects Change button.
+6. The system acknowledges that the password has been changed successfully and returns the user to "Settings page".Alternative Flow6A1. The system reports that the new password does not match and returns the user to "Change password" page.
+6A2. The system reports that the password is too short or doesn't contain any special character and returns the user to "Change password" page.Post-ConditionThe system will save the new password of the user's account.Table 2.6.1.3- 5 - Use Case Description for Change Password:  Customer
+6. Change Password: Mechanic
+Use-Case NumberUC-06Use-Case NameChange PasswordActorMechanicDescriptionThis use case describes how the users change their passwords.Precondition1. The user has logged in.
+2. The system presents the Mechanic's "Homepage" with Settings button.Flow of Events1. The mechanic selects the settings button.
+2. The system presents the "Settings page" with Logout and Change password buttons.
+3. The user selects the Change password button.
+4. The system presents the "Change password" page prompting the user for the new password two times.
+5. the user enters the new password two times and selects Change button.
+6. The system acknowledges that the password has been changed successfully and returns the user to "Settings page".Alternative Flow6A1. The system reports that the new password does not match and returns the user to "Change password" page.
+6A2. The system reports that the password is too short or doesn't contain any special character and returns the user to "Change password" page.Post-ConditionThe system will save the new password of the user's account.Table 2.6.1.3- 6 - Use Case Description for Change Password:  Mechanic 
+7. Change Password: Garage Admin
+Use-Case NumberUC-07Use-Case NameChange PasswordActorGarage AdminDescriptionThis use case describes how the users change their passwords.Precondition1. The user has logged in.
+2. The system presents the Garage Admin's "Homepage" with the Settings button.Flow of Events1. The user selects the settings button.
+2. The system presents the "Settings page" with Logout and Change password buttons.
+3. The user selects the Change password button.
+4. The system presents the "Change password" page prompting the user for the new password two times.
+5. the user enters the new password two times and selects Change button.
+6. The system acknowledges that the password has been changed successfully and returns the user to "Settings page".Alternative Flow6A1. The system reports that the new password does not match and returns the user to "Change password" page.
+6A2. The system reports that the password is too short or doesn't contain any special character and returns the user to "Change password" page.Post-ConditionThe system will save the new password of the user's account.Table 2.6.1.3- 7 - Use Case Description for Change Password:  Garage Admin 
+8. Change Password: System Admin
+Use-Case NumberUC-08Use-Case NameChange PasswordActorSystem AdminDescriptionThis use case describes how the users change their passwords.Precondition1. The user has logged in.
+2. The system presents the System Admin's "Homepage" with the Settings button.Flow of Events1. The user selects the settings button.
+2. The system presents the "Settings page" with Logout and Change password buttons.
+3. The user selects the Change password button.
+4. The system presents the "Change password" page prompting the user for the new password two times.
+5. the user enters the new password two times and selects Change button.
+6. The system acknowledges that the password has been changed successfully and returns the user to "Settings page".Alternative Flow6A1. The system reports that the new password does not match and returns the user to "Change password" page.
+6A2. The system reports that the password is too short or doesn't contain any special character and returns the user to "Change password" page.Post-ConditionThe system will save the new password of the user's account.Table 2.6.1.3- 8 - Use Case Description for Change Password:  System Admin 
+9. Forgot Password: Customer
+Use-Case NumberUC-09Use-Case NameForgot PasswordActorCustomer DescriptionThis use case describes how the user requests to change his/her password if he/she has forgotten their existing password.Precondition1. The user has logged in.
+2. The system presents the Customer's "Homepage" that consists of Signup, Login, Apply and About Us.Flow of Events1. The user selects the Login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user selects the forgot password button.
+4. The system will send to the user's email a temporary password and notifies the user that it has sent a temporary password to he's/her email.Alternative FlowNonePost-ConditionThe password has been changed.Table 2.6.1.3- 9 - Use Case Description for Forgot Password:  Customer 
+
+10. Forgot Password: Mechanic
+Use-Case NumberUC-10Use-Case NameForgot PasswordActorMechanicDescriptionThis use case describes how the user requests to change his/her password if he/she has forgotten their existing password.Precondition1. The user has logged in.
+2. The system presents the Mechanic's "Homepage" that consists of Signup, Login, Apply and About Us.Flow of Events1. The user selects the Login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user selects the forgot password button.
+4. The system will send to the user's email a temporary password and notifies the user that it has sent a temporary password to he's/her email.Alternative FlowNonePost-ConditionThe password has been changed.Table 2.6.1.3- 10 - Use Case Description for Forgot Password:  Mechanic 
+11. Forgot Password: Garage Admin
+Use-Case NumberUC-11Use-Case NameForgot PasswordActorGarage Admin's DescriptionThis use case describes how the user requests to change his/her password if he/she has forgotten their existing password.Precondition1. The user has logged in.
+2. The system presents the Garage Admin's "Homepage" that consists of Signup, Login, Apply and About Us.Flow of Events1. The user selects the Login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user selects the forgot password button.
+4. The system will send to the user's email a temporary password and notifies the user that it has sent a temporary password to he's/her email.Alternative FlowNonePost-ConditionThe password has been changed.Table 2.6.1.3- 11 - Use Case Description for Forgot Password:  Garage Admin 
+12. Forgot Password: System Admin
+Use-Case NumberUC-12Use-Case NameForgot PasswordActorSystem AdminDescriptionThis use case describes how the user requests to change his/her password if he/she has forgotten their existing password.Precondition1. The user has logged in.
+2. The system presents the System Admin's "Homepage" that consists of Signup, Login, Apply, and About Us.Flow of Events1. The user selects the Login button.
+2. The system presents the login page prompting the user for username and password and a forgot password button above the form.
+3. The user selects the forgot password button.
+4. The system will send to the user's email a temporary password and notifies the user that it has sent a temporary password to he's/her email.Alternative FlowNonePost-ConditionThe password has been changed.Table 2.6.1.3- 12 - Use Case Description for Forgot Password:  System Admin 
+13. Register Customer
+Use-Case NumberUC-13Use-Case NameRegister CustomerActorCustomerDescriptionThis use case describes how the customer register and become part of the system.Precondition1. The customer access the website
+2. The system presents the "Homepage" that consists of Signup, Login, Apply and About us.Include <Register Vehicle>Flow of Events1. The customer select "Signup" from the "Homepage".
+2. The system presents the "Signup" page prompting the customer for first name, Last name, Username, Password, Phone Number, Email, to be added to customer Account.
+3. The customer enters the above data, and clicks the "Signup" button.
+4. The system add FirstName, LastName, Username, password, phone number and email to the Customer Account.
+5. The system redirect the customer to "register vehicle" page.Alternative Flow4A1. The system reports that the username already exists and returns the customer to "Sign up" page
+4A2. The system reports that the phone number is invalid and returns the customer to "Sign up" page
+Post-ConditionThe system will generate a customerID for the registered customer.Table 2.6.1.3- 13 - Use Case Description for Customer Registration
+14. Register Vehicle
+Use-Case NumberUC-14Use-Case NameRegister VehicleActorCustomerDescriptionThis use case describes how the customer registers his/her vehicle information.Precondition1. The customer has logged in 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register Vehicle.Flow of Events1. The customer select "Register vehicle" from the customer's
+" Homepage" 
+2. The system presents the "Register vehicle" page prompting the customer for "Vehicle Type", "Plate number", "plate code", "plater country code" and "color" to be added to Vehicle Account.
+3. After the customer enters the above data, the customer clicks the "register" button.
+4. The system Adds the "Vehicle type", "Plate number", "plate code", "plater country code" and "color" to Vehicle Account with the "customerID" and generates "vehicleID".
+5. The system redirects the customer to the customer" Homepage".Alternative Flow2A1. The system reports that the plate number, plate code and plate country code already exist and return the customer to "register vehicle" page.Post-ConditionThe system acknowledges that the customer has registered his/her vehicle successfully.Table 2.6.1.3- 14 - Use Case Description for Vehicle Registration
+15. Locate Garage
+Use-Case NumberUC-15Use-Case NameLocate GarageActorCustomerDescriptionThis use case describes how the customer locates a garage.Precondition1. The customer has logged in 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register Vehicle.IncludeSend Assistance RequestFlow of Events1. The customer clicks the "Locate garage" button from the Customer "Homepage".
+2. the system presents lists of nearby garages including their distance & rate.
+3. The customer select a garage from the list and clicks the "send assistance".Alternative FlowNonePost-ConditionThe system notifies the customer that the service assistance request has been sent.Table 2.6.1.3- 15 - Use Case Description for Locating Garages
+16. Send Assistance Request
+Use-Case NumberUC-16Use-Case NameSend Assistance RequestActorCustomerDescriptionThis use case describes how the customer requests assistance after locating a nearby garage.Precondition1. The customer has logged in 
+2. The system presents the Customer's "Homepage" with "Locate Garage", "Services", "Comment & Rate" and "Register Vehicle"ExtendsSend NotificationFlow of Events1. The system checks which garage has been selected
+2. The system sends the customer's location and customer's information to the selected garage
+3. the system adds the request to service assistance request 
+Alternative FlowNonePost-ConditionRequest has been sent.Table 2.6.1.3- 16 - Use Case Description for Sending Assistance Request 
+17. View Status of the Service: Customer
+Use-Case NumberUC-17Use-Case NameView Status of the ServiceActorCustomerDescriptionThis use case describes how the customer sees the service progress of the vehicle that he/she has given to the garage/mechanic to be serviced.Precondition1. The customer has logged in 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register VehicleIncludeSend Assistance RequestFlow of Events1. The customer selects "services" from the customer "homepage"
+2. the system presents the customer "services" page with "my services", "notification", "settings" and the lists of services available.                      
+3. the customer selects "My services" from the customer "services" page.
+4. the system presents the "my services" page with status of the service and additional services.
+Alternative FlowNonePost-ConditionThe customer views the status of the vehicle.Table 2.6.1.3- 17 - Use Case Description for Viewing Status of the Service 
+18. Comment and Rate
+Use-Case NumberUC-18Use-Case NameComment and RateActorCustomerDescriptionThis use case describes how the customer gives feedback for the service he/she has received.Precondition1. The customer has logged in 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register VehicleFlow of Events1. The customer selects "comment and rate" from the customer "Homepage".
+2. The system presents the comment and rate page with a list of numbers from 1 to 10 for the customer to select on how satisfied he or she is on the service provided.
+3. The customer select from the list and clicks the "submit" button.
+4. The system sends the data to rate.Alternative FlowNonePost-ConditionThe system acknowledges the customer his or her rating is submitted and thanks the customer.Table 2.6.1.3- 18 - Use Case Description for Comment and Rate 
+19. Register Mechanic 
+Use-Case NumberUC-19Use-Case NameRegister MechanicActorMechanicDescriptionThis use case describes how the mechanic registers and become part of the system.Precondition1. The mechanic access the website
+2. The system presents the "Homepage" that consists of Signup, Login, Apply, and About Us.Flow of Events1. The mechanic selects "apply" from the "homepage".
+2. the system presents the "apply" page that consists of "As mechanic" and "As garage" button.
+3. The mechanic select the "As mechanic" button from the "Apply" page
+4. The system presents the "As mechanic" page prompting the mechanic for "first name", "Last name", "username", "password", "Garage name", "phone number" and "email".
+5. After the mechanic enters the above data, the mechanic clicks the "apply" button.
+ 6. the system adds "first name", "Last name", "email", "username", "password", "Garage name", "phone number" to Application Alternative Flow4A1. The system reports that the username already exists and returns the customer to "Apply" page
+4A2. The system reports that the phone number is invalid and returns to "Apply" pagePost-ConditionThe system acknowledge that the application has been sent successfully.Table 2.6.1.3- 19 - Use Case Description for Mechanic Registration
+20. Approve Mechanic
+Use-Case NumberUC-20Use-Case NameApprove MechanicActorGarage AdminDescriptionThis use case describes how the garage admin approves application of a new mechanicPrecondition1) The garage admin has logged in
+2) The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics and Settings.Flow of Events1. The garage admin selects mechanics menu from the garage admin's "Homepage".
+2. The system presents the "mechanics page" 
+3. The garage admin selects the Applications menu.
+4. The system presents the applications page and a list registered of mechanics.
+5. The garage admin select an application from the list of applicants 
+6. The system presents a mechanics application form
+7. The garage admin selects Approve button.
+8. The system adds the mechanic's first name, last name, username, password and email to the garage's "mechanics" list.Alternative Flow7A. The mechanic selects the deny button and sends an email to the denied mechanic that the he/she has been denied.Post-conditionThe mechanic receives an acknowledgement email that he/she has been approved.Table 2.6.1.3- 20 - Use Case Description for Approving Mechanic 
+21. Apply 
+Use-Case NumberUC-21Use-Case NameApplyActorGarage AdminDescriptionThis use case describes how the garage admin sends application to the system admin to become member of the system.Precondition1. The garage admin has accessed the website.
+2. The system presents the "Homepage" that consists of Signup, Login, Apply and About Us.Flow of Events1. The garage admin selects the apply button.
+2. The system presents the "apply page" prompting the garage admin for garage name, username, email and password.
+3. The garage admin provides the above data the garage admin selects the apply button.
+4. The system will add garage name, username, email and password. And will save their current location to the "garage account".Alternative Flow4A1. The system reports that the username already exists and returns the customer to "Apply" page
+4A2. The system reports that the password is too short or doesn't contain any special character and returns the customer to "Apply" pagePost-ConditionThe system will generate garageID and acknowledges that he/she has applied successfully.Table 2.6.1.3- 21 - Use Case Description for Applying for Membership 
+22. Approve Application
+Use-Case NumberUC-22Use-Case NameApprove ApplicationActorSystem AdminDescriptionThis use case describes how the system admin applications of garages who want to join as member of the system.Precondition1. The system admin has logged in
+2. The system presents the garage admin's "Homepage" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects the applications button.
+2. The system presents the "applications" page with the list of applications with the view button beside each record.
+3. The system admin selects the view button from one of the records.
+4. The system presents the selected garage's application with the approve and deny buttons.
+5) The system admin selects the approve button.
+6. The system sends an email to the garage admin that the application has been approved.
+Alternative Flow5A. The system admin selects the deny button.
+6A. The system sends email to the garage admin that the application has been denied.Post-ConditionThe system adds the garage data to the garage account.Table 2.6.1.3- 22 - Use Case Description for Approving Application of Garages
+23. Add Services
+Use-Case NumberUC-23Use-Case NameAdd ServicesActorGarage AdminDescriptionThis use case describes how the garage admin can add services.Precondition1. The garage admin has logged in
+2. The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics, and Settings.Flow of Events1. The mechanic selects services from the garage admin's " Homepage."
+2. The system presents the garage admin's "service page" with the list of services and update, remove button beside each record and add service button above the list of services.
+3. The garage admin selects the Add Service beside the record.
+4. The system presents the garage admin's "add services" page prompting the user for service name and service price.
+5. The garage admin enters the above data the garage admin selects the add button.Alternative FlowNonePost-ConditionThe system adds the data to the "services" list and acknowledges that the service has been added successfully.Table 2.6.1.3- 23 - Use Case Description for Adding Services
+24. Update Services 
+Use-Case NumberUC-24Use-Case NameUpdate ServicesActorGarage AdminDescriptionThis use case describes how the garage admin can update services provided by the garage.Precondition1. The garage admin has logged in
+2. The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics, and Settings.Flow of Events1. The mechanic selects services from the garage admin's " Homepage."
+2. The system presents the garage admin's "service page" with the list of services and update, remove button beside each record and add service button above the list of services.
+3. The garage admin clicks the update button
+4. The system presents a pop up prompting the garage admin with available and not available button.
+5. The garage admin selects available button.
+6. The garage admin enters service updates and clicks Update button.Alternative Flow5A. The garage admin selects not available button.Post-conditionThe system updates the service on the "services" list and acknowledges that the service has been updated.
+Table 2.6.1.3- 24 - Use Case Description for Updating Services 
+25. Remove Services
+Use-Case NumberUC-25Use-Case NameRemove ServicesActorGarage AdminDescriptionThis use case describes how the garage admin can update services provided by the garage.Precondition1. The garage admin has logged in
+2. The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics, and Settings.Flow of Events1. The garage admin selects services from the garage admin's "Homepage."
+2. The system presents the garage admin's "service page" with the list of services and update, remove button beside each record and add service button above the list of services.
+3. The garage admin selects the remove button beside the record.
+4. The system sends "Are you sure you want to remove" message
+5. The garage admin selects confirm buttonAlternative FlowNonePost-conditionThe system removes the service on the "services" list and acknowledges that the service has been removed.
+Table 2.6.1.3- 25 - Use Case Description for Removing Services 
+26. View Services
+Use-Case NumberUC-26Use-Case NameView ServicesActorGarage AdminDescriptionThis use case describes how the garage admin can view services provided by the garage.Precondition1. The garage admin has logged in
+2. The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics, and Settings.Flow of Events1. The mechanic selects services from garage the garage admin's " Home Page."
+2. The system presents the garage admin's "service page" with the list of services and update, remove button beside each record and add service button above the list of services.
+3. The garage admin selects a service from the list of services
+Alternative FlowNonePost-conditionServices with detailed information will be viewed.Table 2.6.1.3- 26 - Use Case Description for Viewing Services 
+27. Review Mechanic 
+Use-Case NumberUC-27Use-Case NameReview MechanicActorGarage AdminDescriptionThis use case describes how the garage admin reviews performance of individual mechanics based on the rating they receive from customers.Precondition1. The garage admin has logged in
+2. The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics and Settings.Flow of Events1. The mechanic selects mechanic from the garage admin's " Home Page."
+2. The system presents the garage admin's "mechanics page" with the list of registered mechanics and remove button beside each record. 
+3. The garage admin selects the Review button beside the record.
+4. The garage admin selects the mechanic he/she wants to review.
+5. The system presents the "mechanics performance" page with comments and rates of customers about the mechanic with the remove button.Alternative FlowNonePost-ConditionThe performance review of mechanics is viewed.Table 2.6.1.3- 27 - Use Case Description for Reviewing Mechanic
+28. Remove Mechanic 
+Use-Case NumberUC-28Use-Case NameRemove MechanicActorGarage AdminDescriptionThis use case describes how the garage admin removes mechanics from the system.Precondition1. The garage admin has logged in
+2. The system presents the garage admin's "Homepage" with Services, Notifications, Mechanics and Settings.Flow of Events1. The mechanic selects mechanic from the garage admin's " Home Page."
+2. The system presents the garage admin's "mechanics page" with the list of registered mechanics and remove button beside each record. 
+3. The garage admin selects the mechanic he/she wants to remove. 
+4. The garage admin selects the Remove button beside the record.
+5. The system sends "Are you sure you want to remove" message
+6. The garage admin click the confirm button.Alternative FlowNonePost-ConditionThe system acknowledges that the mechanic has been removed.Table 2.6.1.3- 28 - Use Case Description for Removing Mechanic 
+29. View Garage
+Use-Case NumberUC-29Use-Case NameView GarageActorSystem AdminDescriptionThis use case describes how the system admin sees the garages who are member of the system.Precondition1. The garage admin has logged in
+2. The system presents the system admin's "Homepage" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects the Garages menu.
+2. The system presents the "garages" page with the list of garages and review and details button.
+3. The system admin selects the garage from the list of garages.Alternative FlowNonePost-ConditionThe system shows the garage with its detail information.Table 2.6.1.3- 29 - Use Case Description for Viewing Garages 
+30. Review Garage
+Use-Case NumberUC-30Use-Case NameReview GarageActorSystem AdminDescriptionThis use case describes how the system admin reviews performance of garages based on the rating they receive from customers.Precondition1. The garage admin has logged in
+2. The system presents the system admin's "Homepage" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects the Garages menu.
+2. The system presents the "garages" page with the list of garages and review and details button beside each record.
+3. The system admin selects the review button.
+4. The system presents the selected garage's profile with customer's comments and ratings about the garage with services, remove buttons beside each record.
+Alternative FlowNonePost-ConditionThe garage has been reviewed.Table 2.6.1.3- 30 - Use Case Description for Reviewing Garages
+
+31. Remove Garage
+Use-Case NumberUC-31Use-Case NameRemove GarageActorSystem AdminDescriptionThis use case describes how the system admin sees the garages who are member of the system.Precondition1. The garage admin has logged in
+2. The system presents the system admin's "Homepage" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects the Garages menu.
+2. The system presents the "garages" page with the list of garages and review and details buttons beside each record.
+3. The system admin selects the details button.
+4. The system presents the selected garage's profile with customer's comments and ratings about the garage with services, remove buttons beside each record.
+5. The system admin selects the remove button.
+6. The system sends "Are you sure you want to remove" message
+7. The system admin selects confirm button
+8. The system sends email to the removed garage's admin that its account has been removed.
+Alternative FlowNonePost-ConditionThe system removes the garage from the garage account list.Table 2.6.1.3- 31 - Use Case Description for Removing Garages 
+
+32. Accept Additional Request
+Use-Case NumberUC-32Use-Case NameAccept Additional RequestActorMechanicDescriptionThis use case describes how the mechanic accept additional requests sent by the customer.Precondition1. The mechanic has logged in 
+2. The system presented the mechanic "Homepage" with "New Request", "Services", "Notification", and "Settings".Flow of Events1. The mechanic select the " new request" from the mechanic "homepage".
+2. The system presents the "new request" page with a list of customers and their detail information. 
+3. The mechanic select from the list and click the "accept" button.Alternative FlowNonePost-ConditionThe system sends a notification to the customer.Table 2.6.1.3- 32 - Use Case Description for Accepting Additional Request
+33. Receive Notification
+Use-Case NumberUC-33Use-Case NameReceive NotificationActorCustomerDescriptionThis use case describes how the customer receives notifications about the status of the vehicle, the status of the services, additional services needed etc. Precondition1. The customer has logged in. 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register Vehicle.Includes< Acknowledgement of the status of the Vehicle >
+< Additional Services Needed >
+< Acceptance of Additional Service Request >
+< Services Finished >Flow of Events1. The customer select "Services" from the customer's
+" Homepage" 
+2. The system presents the "Services" page.  
+3. The customer Selects "Notifications" from Services Page
+4. The system presents list of notifications like "Acknowledgement of the status of the Vehicle", "Additional Services Needed" with Accept or Deny button, "Acceptance of Additional Service Request", and "Services Finished" 
+5. The customer clicks the view button for one of the tabs.Alternative FlowNonePost-ConditionThe customer receives notification for the tabs he/she clicked. Table 2.6.1.3- 33 - Use Case Description for Receiving Notification: Customer 
+34. Acknowledgement of the Status of the Vehicle
+Use-Case NumberUC-34Use-Case NameAcknowledgement of the Status of the VehicleActorCustomerDescriptionThis use case describes how the customer receives notification about the state the vehicle is in when he first gives it to the mechanic.Precondition1. The customer has logged in. 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register Vehicle.Flow of Events1. The customer select "Services" from the customer's
+" Homepage" 
+2. The system presents the "Services" page.  
+3. The customer Selects "Notifications" from Services Page
+4. The system presents list of notifications.
+5. The customer clicks the view button.
+6. The system presents a pop-up prompting the customer to read and accept or deny the status of the vehicle.Alternative FlowNonePost-ConditionThe customer receives notification for additional services.Table 2.6.1.3- 34 - Use Case Description for Acknowledgement of the Status of the Vehicle 
+
+
+35. Additional Services Needed
+Use-Case NumberUC-35Use-Case NameAdditional Services NeededActorCustomerDescriptionThis use case describes how the customer receives notification about the additional services the vehicle needs.Precondition1. The customer has logged in. 
+2. The system presents the Customer's "Homepage" with Locate Garage, Services, Comment & Rate, and Register VehicleExtendsSend NotificationFlow of Events1. The customer select "Services" from the customer's
+" Homepage" 
+2. The system presents the "Services" page.  
+3. The customer Selects "Notifications" from Services Page
+4. The system presents list of notifications.
+5. The customer clicks the view button.
+6. The system presents a pop-up prompting the customer to read and accept or deny the additional services needed.Alternative FlowNonePost-ConditionThe customer receives notification for additional services.Table 2.6.1.3- 35 - Use Case Description Additional Services Needed 
+36. Create Status of the Service
+Use-Case NumberUC-36Use-Case NameCreate Status of the VehicleActorMechanicDescriptionThis use case describes how the mechanic a list of creates a list of services that the vehicle needs. Precondition1. The user has logged in.
+2. The system presents the Mechanic's "Homepage" with the New Request, Services, Notification, and settings button.Flow of Events1. The mechanic selects "Services" from the mechanic "Homepage"
+2. The system presents the "services" page with "Create Services", "Create Status", "Ongoing Services", and a list of services. 
+3. The mechanic selects "Create Status" from the "Services" page.
+4. The system presents "Create Status" page prompting the mechanic for description of the vehicle to be added to Notification (Status).
+5. The mechanic enters the above data and the mechanic clicks the "Approve" button.
+6. The system adds description of the vehicle with customerID and mechanicID to Notifications (Status).Alternative FlowNonePost-ConditionThe system sends notification to the customer.Table 2.6.1.3- 36 - Use Case Description for Creating Status of the Service 
+37. Update Status of the Services
+Use-Case NumberUC-37Use-Case NameUpdate Status of the ServicesActorMechanicDescriptionThis use case describes how the mechanic a list of creates a list of services that the vehicle needs. Precondition1. The user has logged in.
+2. The system presents the Mechanic's "Homepage" with the New Request, Services, Notification, and settings button.Flow of Events1. The mechanic selects "Services" from the mechanic "Homepage"
+2. The system presents the "services" page with "Create Services", "Create Status", "Ongoing Services", and a list of services. 
+3. The mechanic selects "Ongoing Services" from the "Services" page.
+4. The system presents "Ongoing Services" page with Customer Name, Vehicle Name, the services added and a Finish button on each service.
+5. The mechanic selects from the services and clicks the "Finish" button. 6. The system updates the Ongoing Services or Additional Services.Alternative Flow5A. If all the services are finished the system returns no current services available.Post-ConditionThe status of the service will be updated.Table 2.6.1.3- 37 - Use Case Description for Updating Status of the Service 
+38. Create Services 
+Use-Case NumberUC-38Use-Case NameCreate ServiceActorMechanicDescriptionThis use case describes how the mechanic creates a list of services that the vehicle needs.Precondition1. The user has logged in.
+2. The system presents the Mechanic's "Homepage" with the New Request, Services, Notification, and settings button.Flow of Events1. The mechanic selects "Services" from the mechanic "Homepage"
+2. The system presents the "services" page with "Create Services", "Create Status", "Ongoing Services", and a list of services. 
+3. The mechanic selects "Create Services" from the "Services" page.
+4. The system presents a drop-down list of customer name, plate number, plate code, and country code that the mechanic accepted.
+5. The mechanic selects the customer.
+6. The system presents a list of services
+7. The mechanic selects from the list of services and clicks the "Create" button. 
+8. The system adds the above data to "Ongoing Services".Alternative FlowNonePost-ConditionThe system acknowledges to the mechanic that the services are added.Table 2.6.1.3- 38 - Use Case Description for Updating Status of the Service 
+39. View Status of the Services: Mechanic
+Use-Case NumberUC-39Use-Case NameView Status of the ServiceActorMechanicDescriptionThis use case describes how the mechanic a list of creates a list of services that the vehicle needs. Precondition1. The user has logged in.
+2. The system presents the Mechanic's "Homepage" with the New Request, Services, Notification, and settings button.Flow of Events1. The mechanic selects "Services" from the mechanic "Homepage"
+2. The system presents the "services" page with "Create Services", "Create Status", "Ongoing Services", and a list of services. 
+3. The mechanic selects "Ongoing Services" from the "Services" page.
+4. The system presents "Ongoing Services" with Customer Name, Vehicle Name, the services added and a Finish button on each service.
+Alternative FlowNonePost-ConditionThe mechanic sees status of services.Table 2.6.1.3- 39 - Use Case Description for Viewing Status of the Service: Mechanic 
+40. Receive Notification
+Use-Case NumberUC-40Use-Case NameReceive Notification: MechanicActorMechanicDescriptionThis use case describes how the mechanic receives notification about the additional services needed etc. Precondition1. The mechanic has logged in. 
+2.The system presents the Mechanic's "Homepage" with the New Request, Services, Notification, and settings button.Includes< Approval of Additional Service Request >Flow of Events1. The customer Selects "Notifications" from Services Page
+2. The system presents list of notifications Alternative FlowNonePost-ConditionThe mechanic receives notification for the tabs he/she clicked. Table 2.6.1.3- 40 - Use Case Description for Receiving Notification: Mechanic
+41. Create Service List
+Use-Case NumberUC-41Use-Case NameCreate Service ListActorSystem AdminDescriptionThis use case describes how the system admin creates a list of services that the customer can choose from.Precondition1. The user has logged in.
+2. The system presents the system admin's "Home Page" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects Services Tab 
+2. The system presents services page with Create Service button above the list of services and Update Service and Remove Service buttons besides each record.
+3. The system admin selects Create Service button.
+4. The system presents service form
+5. The system admin fill the form and clicks create.Alternative FlowNonePost-ConditionThe system acknowledges to the system admin that the service list has been created.Table 2.6.1.3- 41 - Use Case Description for Create Service List
+42. Update Service List
+Use-Case NumberUC-42Use-Case NameUpdate Service ListActorSystem AdminDescriptionThis use case describes how the system admin creates a list of services that the customer can choose from.Precondition1. The user has logged in.
+2. The system presents the system admin's "Homepage" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects Services Menu 
+2. The system presents services page with Create Service button above the list of services and Update Service and Remove Service buttons besides each record
+3. The system admin clicks the Update Service button
+4. The system presents a pop up prompting the garage admin with available and not available button.
+5. The system admin selects available button
+6. The garage admin enters service updates and clicks Update buttonAlternative Flow5A. The garage admin selects not available button.Post-ConditionThe system acknowledges to the system that the services list has been updated.Table 2.6.1.3- 42 - Use Case Description for Update Service List
+43. Remove Service List
+Use-Case NumberUC-43Use-Case NameRemove Service ListActorSystem AdminDescriptionThis use case describes how the system admin creates a list of services that the customer can choose from.Precondition1. The user has logged in.
+2. The system presents the system admin's "Homepage" with Applications, Garages, Services, Notifications, and Settings.Flow of Events1. The system admin selects Services Menu 
+2. The system presents services page with Create Service button above the list of services and Update Service and Remove Service buttons besides each record
+3. The system admin selects the service that is to be removed from the list of services
+4. The system admin clicks the Remove Service button
+5. The system sends "Are you sure you want to remove" message
+6. The garage admin selects confirm buttonAlternative FlowNonePost-ConditionThe system acknowledges to the system admin that the service has been removed from list.Table 2.6.1.3- 43 - Use Case Description for Remove Service List
+44. Send Additional Service
+Use-Case NumberUC-44Use-Case NameSend Additional ServiceActorMechanicDescriptionThis use case describes how the mechanic sends to the customer additional services that the car to be serviced needs.Precondition1. The mechanic has logged in. 
+2. The system presents the mechanic "Homepage" with "New Request", "Services", "Notification", and "Settings".Flow of Events1. The mechanic selects "services" from mechanic "homepage".
+2. The system presents mechanic "services" page with "create services", "ongoing services" & list of services
+3. The mechanic selects from the list of services and click the "send' button.
+4. The system adds the selected services to additional services. 
+5. The system sends the additional services to the customer.Alternative FlowNonePost-ConditionThe customer receives notification for additional services.Table 2.6.1.3- 44 - Use Case Description for Sending Additional services
+45. Send Notification
+Use-Case NumberUC-45Use-Case NameSend NotificationActorAdditional Services Needed, Additional Service RequestDescriptionThis use case describes how Additional Services Needed; Additional Service Request Notifications are sent to the users.PreconditionThe system adds data to the database.Flow of Events1. The system receives the Additional Services Needed and sends it to the customer.Alternative Flow1A. The system receives the Additional Service Request and sends it to the mechanic.Post-ConditionThe system acknowledges that the message has been sent.Table 2.6.1.3- 45 - Use Case Description for Sending Notification
+46. Logout
+Use-Case NumberUC-46Use-Case NameLogoutActorInitiated by all usersDescriptionThis use case describes how the users Logout of the system.PreconditionThe user has logged in.Flow of Events1. The user selects the settings button.
+2. The system presents the "Settings page" with Logout and Change password buttons.
+3. The user selects the Logout button.Alternative FlowNonePost-ConditionThe system acknowledges that the user has successfully logged out.Table 2.6.1.3- 46 - Use Case Description for Logout
+
+
+
+2.6.2. Class Diagram
+
+     Class diagram provide a graphical notation for modelling, classes with their attribute data types, methods with their return types and arguments and their data types, relationships, access visibility, and multiplicity.
+
+Figure 2.6.2- 1 - Class Diagram
+
+
+
+
+2.6.3. Sequence Diagram
+     
+     Sequence diagrams model the dynamic aspects of a software system. The emphasis is on the sequence of messages rather than relationship between objects.
+
+Figure 2.6.3- 1 - Sequence Diagram for Login: Customer
+Figure 2.6.3- 2 - Sequence Diagram for Login: Mechanic
+
+Figure 2.6.3- 3 - Sequence Diagram for Login: Garage Admin
+
+
+Figure 2.6.3- 4 - Sequence Diagram for Login: System Admin
+
+Figure 2.6.3- 5 - Sequence Diagram for Change Password: Customer
+
+
+Figure 2.6.3- 6 - Sequence Diagram for Change Password: Mechanic
+
+Figure 2.6.3- 7 - Sequence Diagram for Change Password: Garage Admin
+
+Figure 2.6.3- 8 - Sequence Diagram for Change Password: System Admin
+
+
+Figure 2.6.3- 9 - Sequence Diagram for Forgot Password: Customer
+
+
+Figure 2.6.3- 10 - Sequence Diagram for Forgot Password: Mechanic
+
+Figure 2.6.3- 11 - Sequence Diagram for Forgot Password: Garage Admin
+
+Figure 2.6.3- 12 - Sequence Diagram for Forgot Password: System Admin
+
+Figure 2.6.3- 13 - Sequence Diagram for Register Customer
+
+Figure 2.6.3- 14 - Sequence Diagram for Register Vehicle
+
+
+Figure 2.6.3- 15- Sequence Diagram for Locate Garage
+
+
+Figure 2.6.3- 16 - Sequence Diagram for Send Assistance Request
+
+Figure 2.6.3- 17 - Sequence Diagram for View Status of the Service
+
+
+Figure 2.6.3- 18 - Sequence Diagram for Comment and Rate
+
+Figure 2.6.3- 19 - Sequence Diagram for Register Mechanic
+
+Figure 2.6.3- 20 - Sequence Diagram for Approve Mechanic
+
+Figure 2.6.3- 21 - Sequence Diagram for Apply
+
+Figure 2.6.3- 22 - Sequence Diagram for Approve Application
+
+Figure 2.6.3- 23 - Sequence Diagram for Add Services
+
+
+
+Figure 2.6.3- 24- Sequence Diagram for Update Services
+
+Figure 2.6.3- 25 - Sequence Diagram for Remove Services
+
+
+Figure 2.6.3- 26 - Sequence Diagram for View Services
+
+Figure 2.6.3- 27 - Sequence Diagram for Review Mechanic
+
+
+Figure 2.6.3- 28 - Sequence Diagram for Remove Mechanic
+
+
+Figure 2.6.3- 29 - Sequence Diagram for View Garage
+
+
+Figure 2.6.3- 30 - Sequence Diagram for Review Garage
+
+Figure 2.6.3- 31 - Sequence Diagram for Remove Garage
+
+
+Figure 2.6.3- 32 - Sequence Diagram for Accept Additional Request
+
+Figure 2.6.3- 33 - Sequence Diagram for Receive Notification: Customer 
+
+
+Figure 2.6.3- 34 - Sequence Diagram for Acknowledgement of the Status of the Vehicle  
+
+Figure 2.6.3- 35 - Sequence Diagram for Additional Services Needed  
+
+Figure 2.6.3- 36 - Sequence Diagram for Create Status of the Service  
+
+
+Figure 2.6.3- 37 - Sequence Diagram for Update Status of the Service  
+
+Figure 2.6.3- 38- Sequence Diagram for Create Services
+  
+Figure 2.6.3- 39- Sequence Diagram for View Status of the Service: Mechanic
+
+Figure 2.6.3- 40 - Sequence Diagram for Receive Notification: Mechanic
+
+Figure 2.6.3- 41 - Sequence Diagram for Create Service List
+
+Figure 2.6.3- 42 - Sequence Diagram for Update Service List
+
+Figure 2.6.3- 43 - Sequence Diagram for Remove Service List
+
+Figure 2.6.3- 44- Sequence Diagram for Send Additional Services
+
+
+Figure 2.6.3- 45 - Sequence Diagram for Logout
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.6.4. Activity Diagram 
+
+     Activity diagram is basically a flow chart to represent the flow from one activity to another activity. The activity can be described as an operation of the system. The control flow is drawn from one operation to another. This flow can be sequential, branched or concurrent. This distinction is important for a distributed system. Activity diagrams allow you to think functionally. This diagram is used to model the activities which are nothing but business requirements. So, the diagram has more impact on business' understanding rather than the implementation details.
+
+
+
+Figure 2.6.4- 1 - Activity Diagram for Login
+
+
+Figure 2.6.4- 2 - Activity Diagram for Change Password
+
+Figure 2.6.4- 3 - Activity Diagram for Forget Password
+
+
+Figure 2.6.4- 4 - Activity Diagram for Locate Garage
+
+
+Figure 2.6.4- 5 - Activity Diagram for Send Assistance Request
+
+
+Figure 2.6.4- 6 - Activity Diagram for View Status of the Service: Customer
+
+Figure 2.6.4- 7 - Activity Diagram for Register Customer
+
+
+Figure 2.6.4- 8 - Activity Diagram for Register Vehicle
+
+Figure 2.6.4- 9 - Activity Diagram for Comment and Rate
+
+Figure 2.6.4- 10 - Activity Diagram for Register Mechanic
+
+
+Figure 2.6.4- 11 - Activity Diagram for Approve Mechanic
+
+Figure 2.6.4- 12 - Activity Diagram for Add Services
+
+Figure 2.6.4- 13 - Activity Diagram for Update Services
+
+
+Figure 2.6.4- 14 - Activity Diagram for Remove Services
+
+Figure 2.6.4- 15 - Activity Diagram for View Services
+
+Figure 2.6.4- 16 - Activity Diagram for Review Mechanic
+
+Figure 2.6.4- 17 - Activity Diagram for Remove Mechanic
+
+Figure 2.6.4- 18 - Activity Diagram for View Garage
+
+Figure 2.6.4- 19 - Activity Diagram for Review Garage
+
+
+Figure 2.6.4- 20 - Activity Diagram for Remove Garage
+
+Figure 2.6.4- 21 - Activity Diagram for Accept Additional Request
+
+Figure 2.6.4- 22 - Activity Diagram for Receive Notification: Customer
+
+
+
+Figure 2.6.4- 23 - Activity Diagram for Acknowledgement of the Status of the Vehicle
+
+
+Figure 2.6.4- 24 - Activity Diagram for Additional Services Needed
+
+Figure 2.6.4- 25 - Activity Diagram for Create Status of the Service
+
+Figure 2.6.4- 26 - Activity Diagram for Update Status of the Service
+
+Figure 2.6.4- 27 - Activity Diagram for Create Service
+
+Figure 2.6.4- 28 - Activity Diagram for View Status of the Service
+
+Figure 2.6.4- 29 - Activity Diagram for Receive Notification: Mechanic
+
+Figure 2.6.4- 30 - Activity Diagram for Create Service List
+
+Figure 2.6.4- 31 - Activity Diagram for Update Service List
+
+
+Figure 2.6.4- 32 - Activity Diagram for Remove Service List
+
+
+
+Figure 2.6.4- 33 - Activity Diagram for Send Additional Services 
+
+
+Figure 2.6.4- 34 - Activity Diagram for Logout
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chapter 3
+3. System Design Document
+
+3.1. Introduction
+
+     System design is the process of defining the elements of a system such as the architecture, modules and components, the different interfaces of those components, and the data that goes through that system. It is meant to satisfy specific needs and requirements of a business or organization through the engineering of a coherent and well-running system.
+      The purpose of designing is to show the direction how the Application is built and to obtain clear and enough information needed to drive the actual implementation of application. It is based on understanding of the model the Application built on system design also focuses on decomposing the system in to manageable parts.
+
+3.2. Purpose of System Design Document
+
+     The purpose of the system design document is to find out how the system is to be constructed and to get the information needed, to control the actual implementation of the system. 
+Simply the purpose of system design is:
+> To breakdown the system in to subsystems that are easy to be handled or controlled without much difficulty. 
+> To find out the hardware/software stages on which the system will operate. 
+> To determine access control of each class operation. 
+> To determine the persistent data management strategy.
+> To determine the persistent modelling for object-oriented database and the access control.
+
+3.3. Design Goal
+
+     The objective of design is to model a system within a qualified way. Implementing of high-quality system depends on the nature of the design created by the designer. If one wants to make changes to the system after it has put into operation is dependent on the quality of the system design. So, if the system is designed perfectly, it will be easy to make changes to it. The goal of the system design is to manage complexity by decomposing the system into manageable pieces. Some of the goals are listed below: 
+> Portability: The system should work in different platforms because of there could be platform shifting in the future and the work to have the acceptance of different institutes having the different platforms. It is important to have this constraint attempted.
+> Maintainability: The system should be easily extensible: to add new features, adapting changes to environmental structures and fixing errors on the system.
+> Reliability: The system should maintain and perform its functionalities under any condition. Although, it is not logical to develop application which is 100% free from failure, it should have minimum frequency of failure and adaptable for failures.
+> Availability: The service center system should be available 12 hours a day, 7 days a week. The service center system should provide real-time information.
+> Performance: Performance requirements are concerned with quantifiable attributes of the system, such as response time. Response time refers to the waiting time while the system accesses, queries and retrieves the information from the databases.
+> Dependability: The system should provide security in such a way that unauthorised users can not have access to the system's resource. Moreover, the system should be designed to reject invalid user inputs to insure the system's robustness for all interacting users.
+> End user: The system should provide user friendly and self-explanatory graphical user interface that eases the interaction of the user with the system. In addition, the system should be flexible, efficient, and reliable.
+
+3.4. Architectural Design
+
+     Architecture of a system is one of the major issues that should be given more importance. The architecture plays a main role for modularizing the different components of a system. The architecture of a program or a computer system is the structure or structures of the system, which comprise software elements, the externally visible properties of those elements, and the relationship among them. They contain important design decisions about the system and the interactions between those structures that comprise the system. When considering the software architecture of our system, it is going to be implemented in a three-tied layer having data-access, business, and presentation layers.
+
+> The Presentation Layer: is the top most level of the application. It is the one the users directly interact with. It provides GUI to allow the client gaining access of the system.
+> Business Layer: It accepts inputs from the client and performs detailed processing. It is a bridge between presentation tier and data access tier.
+> Data Access Layer: Provides data persistence mechanism and storage to the data. It consists of a mechanism to access the database without installing database dependent drivers and libraries on the client device.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Figure 3.4- 1 - Architectural Design
+
+3.5. Subsystem Decomposition
+
+     Subsystem decomposition is an important step in software analysis and design that breaks down the system into less complex and simpler subsystems. In our case the decomposition of our system looks as follows:
+
+
+
+
+
+Figure 3.5- 1 - Subsystem Decomposition Diagram
+
+
+
+
+3.5.1. Accounts Subsystem
+
+     Accounts subsystem is used for managing the individual users within the system. It checks whether the right user is logged into the system and checks what kind of access and privilege the user has to the data that the system provides.
+
+Figure 3.5.1- 1 - Accounts Subsystem 
+1.5.2. Services Subsystem
+
+     Services subsystem deals with the different kinds of services that the garages offer with the estimated prices for each service.
+
+Figure 3.5.1- 2 - Services Subsystem 
+1.5.3. Vehicles Subsystem
+
+     Vehicles subsystem deals with the vehicles that the customer has given to be serviced as well as those registered when the customer registers to become part of the system.
+
+Figure 3.5.1- 3 - Vehicle Subsystem 
+1.5.4. Notifications subsystem
+
+     Notifications subsystem deals with the overall communication between the clients and the service providers. It handles the sending and receiving of notifications between the customer and mechanic for vehicles that are in services.
+
+
+Figure 3.5.1- 4 - Notifications Subsystem 
+3.6. Hardware/Software Mapping
+
+     The subsystems identified on the subsystem decomposition section of this document can be can further be grouped into autonomous deployable units within the system. Below is the hardware/software mapping for our system represented by the deployment diagram.
+
+
+
+
+
+
+Figure 3.6- 1 - Hardware/Software Mapping 
+
+
+
+
+
+
+3.7. Persistent Data Management
+
+     Persistent Data Management describes the persistent data stored by the system and the data management infrastructure required for it. One of the design considerations for the system is data storage, i.e., to make the data more secure and to facilitate concurrent access. The persistent data storage for our system looks as follows:
+
+Figure 3.7- 1 - Design Class Diagram
+3.8. Access Control 
+
+     Access control describes the user model of the system in terms of an access matrix. It represents the privilege an actor has on the system. Each actor in our system has their own username and password to have access to the system.
+                                             Actor 
+
+              Object Customer MechanicGarage AdminSystem Admin Customer login()
+logout()
+changePassword()
+forgotPassword()Mechanic login()
+logout()
+changePassword()
+forgotPassword()removeMechanic()
+viewMechanic()Garage login()
+logout()
+changePassword()
+forgotPassword()removeGarage()
+viewGarage()System Adminlogin()
+logout()
+changePassword()
+forgotPassword()
+Application apply()apply()
+approveMechanice()apply()
+approveGarage()
+VehicleviewVehicle()Status of vehicleapproveStatus()createStatus()
+viewStatus()
+Service viewService()createService()
+addService()
+addService()
+updateService()
+removeService()addService()Ongoing ServicesviewService()updateService()
+viewService()
+Additional ServicessendAdditionalServiceReq()
+viewService()updateService()
+viewService()
+sendAdditionalServiceReq()
+NotificationsendAssistanceReq()
+sendNotification()
+receiveNotification()viewNotification()
+sendNotification()
+acceptAssistanceReq()
+Table 3.8- 1 - Access Control
+
+3.9. Boundary Condition
+
+     The boundary condition's main concern is how the system is started, initialized, and shut down. The system makes sure that no user has logged to the system with wrong username and password. However, if the information is valid it will allow to access the system.
+     Exception handling is the mechanism by which a system treats an exception. In case of a user error, the system should display a simple error message to the user, such that the user can correct his/her input. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chapter 4
+4. Object Design Document
+
+    Object design is the process of adding details to the requirements analysis and making implementation decisions. The object designer must choose among different ways to implement the analysis model with the goal to minimize execution time, memory and other measures of cost. The ODD is used to exchange interface information among developers and as a reference during testing.
+4.1. Object Design Trade-offs
+
+The following are the trade-offs found:
+Memory Vs Speed
+     Because of our system significantly focusses on data the trade-off between memory and speed in repeat to our system is memory.
+Build Vs Run
+     Although buying the system limits the flexibility for each module while building the system can adhere to our specific requirement and design.
+Scalability Vs Security
+     Because we fall the need for our customer's data to be secured, we have made it a priority. But scalability of our app is deeply considered in our design.
+
+4.2. Interface Documentation Guidelines
+
+     Naming conventions play a very important role in the understandability of a program code. Adding to that they can also describe the function of a certain identifier, so it is important that code written by one developer is clear and immediately understandable by other developers. So, the general documentation   guidelines we followed while coding: 
+> Classes are to be named by what they perform so that they describe their function.
+> Methods that are not by default defined by the controllers are to be named with verb phrases and could come along with nouns which help further describe the method. 
+> Code should be readable. It should follow indentations. 
+> Every variable should be descriptive of its function 
+
+4.3. Package
+
+
+Figure 4.3- 1 - Controllers
+
+
+Figure 4.3- 2 - Models
+
+Figure 4.3- 3 - Customers Views
+
+Figure 4.3- 4 - Mechanics Views
+
+
+Figure 4.3- 5 - Garages Views
+
+
+Figure 4.3- 6 - System Admin Views
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4.4. Class Interface
+
+
+
+Figure 4.4- 1 - Application Class
+
+4.4.1	Application Class
+MethodReturn TypeDescriptiongetid()intReturns the user Idsetid(int id)voidSets the user IdgetFirstName()StringReturns the user first namesetFirstName(firstName)voidSets the user first namegetLastname()StringReturns the user Last namesetLastName(lastName)voidSets the users last namegetGarageName()StringReturns the garage namesetGarageName(garageName)VoidSets the garages namegetUsername()StringReturns the usernamesetUsername(username)VoidSets the usernamegetPassword()StringReturns the passwordsetPassword(password)VoidSets the passwordgetEmail()StringReturns the emailsetEmail(email)VoidSets the emailgetPhoneNumber()IntReturns the phone numbersetPhoneNumber(phoneNumber)VoidSets the phone numbergetGarageId()IntReturns the garageIdsetGarageId(garageId)VoidSets the garageIdgetApproval()boolReturns the approvalsetApproval(approval)voidSets the approvalapply(Application application)ActionResultHandles POST intended to add the applicationapproveMechanic(Application application)ActionResultHandles POST intended to update the application of a mechanicapproveGarage(Application application)ActionResultHandles POST intended to update the application of a garageTable 4.4- 1 - Applications Class
+
+
+
+Figure 4.4- 2 - Garage Class
+4.4.2	Garage Class
+MethodReturn TypeDescriptiongetid()intReturns the user Idsetid(int id)voidSets the user IdgetGarageName()StringReturns the garage namesetGarageName(garageName)VoidSets the garage namegetUsername()StringReturns the usernamesetUsername(username)VoidSets the usernamegetPassword()StringReturns the passwordsetPassword(password)VoidSets the passwordgetEmail()StringReturns the emailsetEmail(email)VoidSets the emailgetPhoneNumber()IntReturns the phone numbersetPhoneNumber(phoneNumber)VoidSets the phone numbergetRating()IntReturns the ratingsetRating(rating)VoidSets the ratinggetRemoved()BoolReturns the removedsetRemoved(removed)VoidSets the removedgetAvailable()BoolReturns the availablesetAvailable(available)voidSets the availableget(string username)ActionResultHandles the GET intended to get the usernamesignUp(Application garage)ActionResultHandles the POST intended to add the garagechangePassword(Garage garage)ActionResultHandles the POST intended to change the password of a garageLogin(Garage garage)ActionResultHandles the POST intended for the garage to loginLogout()ActionResultHandles to POST intended for the garage to logoutTable 4.4- 2 - Garage Class
+
+
+
+
+Figure 4.4- 3 - Customer Class
+
+4.4.3	Customer Class
+MethodReturn TypeDescriptiongetid()intReturns the Idsetid(int id)voidSets the IdgetFirstName()StringReturns the first namesetFirstName(firstName)voidSets the first namegetLastname()StringReturns the last namesetLastName(lastName)voidSets the last namegetUsername()StringReturns the usernamesetUsername(username)VoidSets the usernamegetPassword()StringReturns the passwordsetPassword(password)VoidSets the passwordgetEmail()StringReturns the emailsetEmail(email)VoidSets the emailgetPhoneNumber()IntReturns the phone numbersetPhoneNumber(phoneNumber)VoidSets the phone numberget(string username)IntHandles the GET intended to get the usernamesignUp(Customer customer)ActionResultHandles the POST intended to add the customerchangePassword(Customer customer)ActionResultHandles the POST intended to change the password of a customerLogin(Customer customer)ActionResultHandles the POST intended for the customer to loginLogout()ActionResultHandles to POST intended for the customer to logoutTable 4.4- 3 - Customer Class
+
+
+
+Figure 4.4- 4 - Mechanic Class
+
+
+
+4.4.4	Mechanic Class
+MethodReturn TypeDescriptiongetid()intReturns the Idsetid(int id)voidSets the IdgetFirstName()StringReturns the first namesetFirstName(firstName)voidSets the first namegetLastname()StringReturns the last namesetLastName(lastName)voidSets the last namegetUsername()StringReturns the usernamesetUsername(username)VoidSets the usernamegetPassword()StringReturns the passwordsetPassword(password)VoidSets the passwordgetEmail()StringReturns the emailsetEmail(email)VoidSets the emailgetPhoneNumber()IntReturns the phone numbersetPhoneNumber(phoneNumber)VoidSets the phone numberget(string username)ActionResultHandles the GET intended to get the usernamesignUp(Application Mechanic)ActionResultHandles the POST intended to add the mechanicchangePassword(Mechanic mechanic)ActionResultHandles the POST intended to change the mechanic passwordLogin(Mechanic mechanic)ActionResultHandles the GET intended for the mechanic to loginLogout()ActionResultHandles to POST intended for the mechanic to logoutTable 4.4- 4 - Mechanic Class
+
+ 
+Figure 4.4- 5 - System Admin Class
+4.4.5	System Admin Class
+MethodReturn TypeDescriptiongetid()intReturns the Idsetid(int id)voidSets the IdgetFirstName()StringReturns the first namesetFirstName(firstName)voidSets the first namegetLastname()StringReturns the last namesetLastName(lastName)voidSets the last namegetUsername()StringReturns the usernamesetUsername(username)VoidSets the usernamegetPassword()StringReturns the passwordsetPassword(password)VoidSets the passwordgetEmail()StringReturns the emailsetEmail(email)VoidSets the emailgetPhoneNumber()IntReturns the phone numbersetPhoneNumber(phoneNumber)VoidSets the phone numberget(string username)ActionResultHandles the GET intended to get the usernamesignUp(System Admin system Admin)ActionResultHandles the POST intended to add the SystemAdminchangePassword(System Admin system Admin)ActionResultHandles the POST intended to change the systemAdmin passwordLogin(System Admin system Admin)ActionResultHandles the GET intended to get the SystemAdmin to loginLogout()ActionResultHandles the POST intended for the SystemAdmin to logoutTable 4.4- 5 - System Admin Class
+
+'
+
+Figure 4.4- 6 - Vehicle Class
+
+4.4.6	Vehicle Class
+MethodReturn TypeDescriptiongetid()intReturns the Idsetid(int id)voidSets the IdgetVehicleType()StringReturns the vehicle typesetVehicleType(string vehicleType)voidSets the vehicle typegetPlateNumber()intReturns the plate number of the vehiclesetPlateNumber(int plateNumber)voidSets the plate c of the vehiclegetPlateCode()intReturns the country code of the vehiclesetPlateCode(int plateCode)VoidSets the country code of the vehiclegetCountryCode()StringReturns the country code of the vehiclesetCountryCode(string countryCode)VoidSets the country code of the vehiclegetColor()StringReturns the color of the vehiclesetColor(string color)VoidSets the color of the vehiclegetCustomerId()IntReturns the customer IdsetCustomerId(int customerId)VoidSets the customer IdviewVehicle(int CustomerId)ActionResultHandles the GET intended to view the vehiclesregisterVehicle(Vehicle vehicle)ActionResultHandles the POST intended to add the vehicle
+Figure 4.4- 7 - Status of Vehicle Class
+
+4.4.7	Status of Vehicle Class
+MethodReturn TypeDescriptiongetid()intReturn Idsetid(int id)voidSets the IdgetVehicleId()IntReturns the vehicle IdsetVehicleID(int vehicleID)voidSets the vehicle IdgetMechanicId()IntReturns the mechanic IdsetMechanicId(int mechanicId)voidSets the mechanic idgetCustomerId()intReturns the customer IdsetCustomerId(int customerId)VoidSets the customer IdgetDescription()StringReturns the description setDescription(string description)VoidSets the descriptiongetDate()DateTimeReturn datesetDate(DateTime date)VoidSets the dategetApproval()BoolReturns the approvalsetApproval(bool approval)VoidSets the approvaladdStat(statusOfVehiclel stat)ActionResultHandles the POST intended to add the status of the vehicleapproveStat(statusOfVehicle stat)ActionResultHandles the PATCH intended to approve the status of the vehiclegetStatus(int sovId)ActionResultHandles the GET intended to see the status of the VehicleTable 4.4-7- Status of Vehicle Class
+
+
+Figure 4.4- 8 - Service Class
+
+4.4.8 Service Class
+MethodReturn TypeDescriptiongetid()intReturns Idsetid(int id)VoidSets the IdgetServiceName()StringReturns the service namesetServiceName(string ServiceName)VoidSets the service namegetEstimatedPrice()FloatReturn estimated pricesetEstimatedPrice(float estimatedPrice)VoidSets estimated pricegetRemoved()BoolReturn removedsetRemoved(bool removed)VoidSets removedgetListOfGarages()ICollectionReturns list of garagessetListOfGarages (ICollection <Garage> listOfGarages)VoidSets list of garagesviewService()ActionResultHandles the GET intended for the systemAdmin to see the serviesviewService(int garageId)ActionResultHandles the GET intended to see the services of a garagecreateService(Service service)ActionResultHandles the POST intended to add servicesaddServiceGarage(tempService createService)ActionResultHandles the POST intended to add services to a garageUpdateService(Service service)Bool Handles the PATCH intended to update the services  removeService(int ServiceId)BoolHandles the PATCH intended to remove the servicesremoveService(tempService updateService)BoolHandles the PATCH intended to remove the services of a garageTable 4.4-8 - Service Class
+
+
+Figure 4.4- 9 - Ongoing Service Class
+
+4.4.9	Ongoing Services Class
+MethodReturn typeDescriptionGetid()intReturns the IdSetid(int id)VoidSets the IdgetStatusOfVehicleid()intReturns the status of vehicle IdsetStatusOfVehicleid(int statusOfVechicleid)VoidSets the status of the vehicle IdgetExpectedDate()DateReturns the expected datesetExpectedDate(DateTime expectedDate)VoidSets the expected dategetServiceFinished()boollReturns the service finishedsetServiceFinised(bool serviceFinished)VoidSets the service finishedgetTotalPrice()FloatReturns the total pricesetTotalPrice(float totalPrice)VoidSets the total pricegetListOfService()Return ICollectionReturns list of servicessetListOfService(ICollection<service>listOFService)VoidSets list of servicesgetServiceCustomer(int statusid)ActionResultHandles the GET intended to see the ongoing serviceupdateServiceMechanic(onGoingService ongoingService)ActionResultHandles the PATCH intended to update the ongoing servicecreateServiceMechanic(onGoingService onGoingService)ActionResultHandles the POST intended to add the ongoing service MethodReturn typeDescriptionGetid()Return intSetid(int id)Return voidgetStatusOfVehicleid()Return intsetStatusOfVehicleid(int statusOfVechicleid)getExpectedDate()Return intsetExpectedDate(DateTime expectedDate)getServiceFinished()Return intsetServiceFinised(bool serviceFinished)getTotalPrice()Return intsetTotalPrice(float totalPrice)Return int?getListOfService()Return stringsetListOfService(ICollection<service>listOFService)getServiceCustomer(int statusid)Return intupdateServiceMechanic(onGoingService ongoingService)createServiceMechanic(onGoingService onGoingService)
+Figure 4.4- 10 - Additional Service Class
+4.4.10     Additional Services Class
+MethodReturn TypeDescriptiongetid()Return intReturns the Idsetid(int id)VoidSets the IdgetStatusOfVehicleid()intReturns the status of vehicle IdsetStatusOfVehicleid(int statusOfVehicleid)VoidSets the status of the vehicle IdgetExpectedDate()DateTimeReturns the expected datesetExpectedDate(DateTime expectedDate)VoidSets the expected dategetServiceFinished()BoolReturns the service finishedsetServiceFinished(bool serviceFinished)VoidSets the service finishedgetTotalPrice()FloatReturns the total pricesetTotalPrice(float totalPrice)VoidSets the total pricegetListOfService()Return ICollectionReturns list of servicessetListOfService(ICollection<service> listOfService)VoidSets list of servicessendAddCustomer(additionalService additionalService)????ActionResultHandles the POST intended for the customer to add additional servicesviewServiceCustomer(int statusId)ActionResultHandles the GET intended to see the additional servicesupdateServiceMechanic(additionalService additionalService)ActionResultHandles the PATCH intended for the mechanic to update the additional servicessendAddMechanic(additionalService additionalService)ActionResultHandles the POST intended for the mechanic to add additional services
+Table 4.4-10 - Additional Services Class
+
+
+Figure 4.4- 11 - Notification Class
+
+4.4.11    Notification Class
+MethodReturn TypeDescriptiongetid()Return intReturns the Idsetid(int id)Return voidSets the IdgetSender()Return stringReturns the sendersetSender(sender)Return voidSets the sendergetReceived()Return stringReturns the receivedsetReceived(received)Return voidSets the receivedgetCustomerid()Return intReturns the customer IdsetCustomerid(customerid)Return intSets the customer IdgetMechanicid()Return intReturns the mechanic IdsetMechanicid(Mechanicid)Return intSets the mechanic IdsendAssReq(serviceAssistanceRequest serviceAssistanceRequest)ActionResultHandles the POST intended for the customer to add assistance requestacceptAssReq(int requestedid)ActionResultHandles the PATCH intended for the mechanic to approve assistance requestreceivedNotificationMech(int mechid)ActionResultHandles the GET intended for the mechanic to receive notificationreceivedNotificationCust(int custid)ActionResultHandles the GET intended for the customer to receive notificationsendNotification(Notification notificationActionResultHandles the POST intended to send notification viewNotification (int notfid)ActionResultHandles the GET intended for the user to see notificationTable 4.4-11  - Notification Class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chapter 5
+5 Implementation
+
+5.1. Tools 
+
+> For development framework we used ASP.NET framework
+> For programming Languages, we used  
+> C# and
+> React JavaScript
+> For database we used Dbsql
+  
+5.2. Testing
+
+     Software testing is a process to evaluate the functionality of a software application with an intent to find whether the developed software met the specified requirement or not and to identify the defects to ensure the product is defect free in order to produce a quality product.
+
+5.2.1. Ad-hoc Testing
+
+     The name itself suggests that this testing is performed on an Ad-hoc basis i.e. with no reference to the test case and also without any plan or documentation in place for such type of testing. The objective of this testing is to find the defects and break the application by executing any flow of the application or any random functionality.
+     Ad-hoc Testing is an informal way of finding defects and can be performed by anyone in the project. It is difficult to identify defects without a test case but sometimes it is possible that defects found during ad-hoc testing might not have been identified using existing test cases
+5.2.2. Back-end Testing
+
+     Whenever an input or data is entered on front-end application, it stores in the database and the testing of such database is known as Database Testing or Backend Testing. There are different databases like SQL Server, MySQL, and Oracle, etc. Database Testing involves testing of table structure, schema, stored procedure, data structure and so on.
+5.2.3. Integration Testing
+    
+    Testing of all integrated modules to verify the combined functionality after integration is termed as Integration Testing. Modules are typically code modules, individual applications, client and server applications on a network, etc. This type of testing is especially relevant to client/server and distributed systems.
+
+5.2.4. Unit Testing
+
+     Testing of an individual software component or module is termed as Unit Testing. It is typically done by the programmer and not by testers, as it requires detailed knowledge of the internal program design and code. It may also require developing test driver modules or test harnesses.
+
+
+
+
+
+
+
+
+
+
+5.3. Major Class Code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Reference
+[1]. Arlow J., Neustadt I. UML and the Unified Process, Practical Object-Oriented Analysis and Design, 2002. 
+[2]. Bruegge B., Dutoit A.H., Object-Oriented Software Engineering Using UML, Patterns, and Java Third Edition, 2004.
+[3]. Iswarya K., Devaki D., Ranjith E., "Road Assistance System Using GPS", International Journal of Advanced Research, Ideas, and Innovation in Technology, Volume3, Issue2, 2017.  
+[4]. Kapadi V., Guruju S., Bojja B., Prof. Nikam N., "Emergency Breakdown Services using Android Application", Dept. of Computer Engineering, YTIET, Chandhai, Karjat, 2017.
+[5]. Kumaar A.D., Balakrishnan, Subha S., Harin S.K., "On Road Vehicle Service Finder", Department of Information Technology Rajalakshmi Engineering College, Chennai, Tamil Nadu, India, 2019.
+[6]. Nadeeshani I.H.D, "On-Road Vehicle Breakdown Assistance", Department of Computer Science and Technology, The University of Bedfordshire.
+[7]. Prof. Adhav S.C.S, Gujar R., Jadhav M., Limbore T., "Automobile Service Center Management System", International Journal of Scientific and Research Publications, Volume 4, Issue 3, 2014.
+[8]. Sommerville I., Software Engineering Tenth Edition, 2016.
+[9]. Xiao J.X., Coll. of Sci., Hebei Polytech. Univ., Tangshan, China Fang-Ling Lu, "An improvement of the shortest path algorithm based on Dijkstra algorithm "Computer and Automation Engineering (ICCAE), The 2nd International Conference on Volume 2, 2010. 
+
+
+
+
+ 
+
+
+.,  
+
+
+115
+
+
