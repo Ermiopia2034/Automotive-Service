@@ -384,7 +384,9 @@ export async function POST(request: NextRequest) {
           include: {
             service: {
               select: {
-                serviceName: true
+                id: true,
+                serviceName: true,
+                estimatedPrice: true
               }
             }
           }
@@ -396,7 +398,9 @@ export async function POST(request: NextRequest) {
           include: {
             service: {
               select: {
-                serviceName: true
+                id: true,
+                serviceName: true,
+                estimatedPrice: true
               }
             }
           }
@@ -450,15 +454,65 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Generate invoice for the completed service
+    const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    await prisma.invoice.create({
+      data: {
+        invoiceNumber: invoiceNumber,
+        customerId: serviceRequest.customerId,
+        garageId: serviceRequest.garageId,
+        serviceRequestId: serviceRequestId,
+        subtotal: subtotal,
+        taxAmount: 0, // Can be configured later
+        discountAmount: discount,
+        totalAmount: finalTotal,
+        status: 'unpaid',
+        notes: finalNotes || `Service completed. ${servicesList.join(', ')}`,
+        invoiceItems: {
+          create: [
+            // Add ongoing services as invoice items
+            ...vehicleStatuses.flatMap(status =>
+              status.ongoingServices.map(service => ({
+                serviceId: service.serviceId,
+                description: service.service.serviceName,
+                quantity: 1,
+                unitPrice: service.service.estimatedPrice,
+                totalPrice: service.totalPrice
+              }))
+            ),
+            // Add additional services as invoice items
+            ...vehicleStatuses.flatMap(status =>
+              status.additionalServices.map(service => ({
+                serviceId: service.serviceId,
+                description: `${service.service.serviceName} (Additional Service)`,
+                quantity: 1,
+                unitPrice: service.service.estimatedPrice,
+                totalPrice: service.totalPrice
+              }))
+            ),
+            // Add additional charges if any
+            ...(additionalCharges > 0 ? [{
+              serviceId: null,
+              description: 'Additional Charges',
+              quantity: 1,
+              unitPrice: additionalCharges,
+              totalPrice: additionalCharges
+            }] : [])
+          ]
+        }
+      }
+    });
+
     // Create completion notification for customer using standardized template
     const template = NOTIFICATION_TEMPLATES[NOTIFICATION_TYPES.SERVICE_COMPLETION].toCustomer(finalTotal, totalOngoingServices + totalAdditionalServices);
-    
+
     await createNotification(
       decoded.id,
       serviceRequest.customerId,
       NOTIFICATION_TYPES.SERVICE_COMPLETION,
       template.title,
-      template.message
+      `${template.message} Invoice #${invoiceNumber} has been generated. Total amount: $${finalTotal.toFixed(2)}`
     );
 
     // Create completion notification for garage admin
@@ -468,7 +522,7 @@ export async function POST(request: NextRequest) {
         serviceRequest.garage.adminId,
         NOTIFICATION_TYPES.SERVICE_COMPLETION,
         'Service Request Completed',
-        `Service request #${serviceRequestId} has been completed. Final total: $${finalTotal.toFixed(2)}`
+        `Service request #${serviceRequestId} has been completed. Final total: $${finalTotal.toFixed(2)}. Invoice #${invoiceNumber} generated.`
       );
     }
 

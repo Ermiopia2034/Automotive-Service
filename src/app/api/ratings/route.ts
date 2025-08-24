@@ -1,17 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import jwt from 'jsonwebtoken';
 import type { ApiResponse } from '@/types/auth';
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 interface RatingSubmission {
@@ -24,12 +32,23 @@ interface RatingSubmission {
 // POST /api/ratings - Submit a new rating
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-
-    if (!session?.user) {
+    const token = getTokenFromRequest(request);
+    
+    if (!token) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
       }, { status: 401 });
     }
 
@@ -98,7 +117,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // Check if user has already rated this garage recently (prevent spam)
     const existingRating = await prisma.rating.findFirst({
       where: {
-        customerId: parseInt(session.user.id),
+        customerId: decoded.id,
         garageId: garageId,
         createdAt: {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
@@ -116,7 +135,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // Create the rating
     const newRating = await prisma.rating.create({
       data: {
-        customerId: parseInt(session.user.id),
+        customerId: decoded.id,
         garageId: garageId,
         mechanicId: mechanicId || null,
         rating: rating,
@@ -183,12 +202,23 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 // GET /api/ratings - Get ratings for a specific garage or customer
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-
-    if (!session?.user) {
+    const token = getTokenFromRequest(request);
+    
+    if (!token) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
       }, { status: 401 });
     }
 
@@ -204,14 +234,19 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     if (garageId) {
       whereClause.garageId = parseInt(garageId);
     } else if (customerId) {
-      // Users can only view their own ratings
-      if (customerId !== session.user.id) {
-        return NextResponse.json({
-          success: false,
-          error: 'Unauthorized to view other customers\' ratings'
-        }, { status: 403 });
+      // Handle "current" as referring to the authenticated user
+      if (customerId === 'current') {
+        whereClause.customerId = decoded.id;
+      } else {
+        // Users can only view their own ratings
+        if (parseInt(customerId) !== decoded.id) {
+          return NextResponse.json({
+            success: false,
+            error: 'Unauthorized to view other customers\' ratings'
+          }, { status: 403 });
+        }
+        whereClause.customerId = parseInt(customerId);
       }
-      whereClause.customerId = parseInt(customerId);
     } else {
       return NextResponse.json({
         success: false,

@@ -39,6 +39,8 @@ model User {
   ratingsGiven        Rating[]            @relation("RatingCustomer")
   ratingsReceived     Rating[]            @relation("RatingMechanic")
   applications        Application[]
+  payments            Payment[]           @relation("PaymentCustomer")
+  invoices            Invoice[]           @relation("InvoiceCustomer")
 
   @@map("users")
 }
@@ -63,6 +65,8 @@ model Garage {
   serviceRequests ServiceRequest[]
   ratings         Rating[]
   applications    Application[]
+  payments        Payment[]
+  invoices        Invoice[]
 
   @@map("garages")
 }
@@ -112,6 +116,7 @@ model Service {
   garageServices    GarageService[]
   ongoingServices   OngoingService[]
   additionalServices AdditionalService[]
+  invoiceItems      InvoiceItem[]
 
   @@map("services")
 }
@@ -149,6 +154,8 @@ model ServiceRequest {
   garage          Garage          @relation(fields: [garageId], references: [id])
   vehicle         Vehicle         @relation(fields: [vehicleId], references: [id])
   vehicleStatuses VehicleStatus[]
+  payments        Payment[]
+  invoices        Invoice[]
 
   @@map("service_requests")
 }
@@ -240,18 +247,88 @@ model Rating {
 
 // Applications table
 model Application {
-  id              Int             @id @default(autoincrement())
-  applicantId     Int
-  applicationType ApplicationType
-  garageId        Int?
-  approved        Boolean?
-  createdAt       DateTime        @default(now())
+   id              Int             @id @default(autoincrement())
+   applicantId     Int
+   applicationType ApplicationType
+   garageId        Int?
+   approved        Boolean?
+   createdAt       DateTime        @default(now())
 
-  // Relations
-  applicant User    @relation(fields: [applicantId], references: [id])
-  garage    Garage? @relation(fields: [garageId], references: [id])
+   // Relations
+   applicant User    @relation(fields: [applicantId], references: [id])
+   garage    Garage? @relation(fields: [garageId], references: [id])
 
-  @@map("applications")
+   @@map("applications")
+}
+
+// Payment table
+model Payment {
+   id               Int           @id @default(autoincrement())
+   customerId       Int
+   garageId         Int
+   serviceRequestId Int?
+   amount           Float
+   paymentMethod    PaymentMethod
+   status           PaymentStatus  @default(PENDING)
+   transactionId    String?
+   paymentDate      DateTime?
+   notes            String?
+   createdAt        DateTime      @default(now())
+   updatedAt        DateTime      @updatedAt
+
+   // Relations
+   customer       User            @relation("PaymentCustomer", fields: [customerId], references: [id])
+   garage         Garage          @relation(fields: [garageId], references: [id])
+   serviceRequest ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+   invoice        Invoice?
+
+   @@map("payments")
+}
+
+// Invoice table
+model Invoice {
+   id               Int      @id @default(autoincrement())
+   paymentId        Int?     @unique
+   invoiceNumber    String   @unique
+   customerId       Int
+   garageId         Int
+   serviceRequestId Int?
+   subtotal         Float
+   taxAmount        Float    @default(0)
+   discountAmount   Float    @default(0)
+   totalAmount      Float
+   issuedDate       DateTime @default(now())
+   dueDate          DateTime?
+   paidDate         DateTime?
+   status           String   @default("unpaid") // unpaid, paid, overdue
+   notes            String?
+
+   // Relations
+   payment        Payment?        @relation(fields: [paymentId], references: [id])
+   customer       User            @relation("InvoiceCustomer", fields: [customerId], references: [id])
+   garage         Garage          @relation(fields: [garageId], references: [id])
+   serviceRequest ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+   invoiceItems   InvoiceItem[]
+
+   @@map("invoices")
+}
+
+// InvoiceItem table
+model InvoiceItem {
+   id         Int     @id @default(autoincrement())
+   invoiceId  Int
+   serviceId  Int?
+   description String
+   quantity   Float   @default(1)
+   unitPrice  Float
+   totalPrice Float
+   createdAt  DateTime @default(now())
+
+   // Relations
+   service     Service?      @relation(fields: [serviceId], references: [id])
+   invoice     Invoice       @relation(fields: [invoiceId], references: [id])
+
+   @@map("invoice_items")
 }
 
 // Enums
@@ -273,4 +350,21 @@ enum ServiceStatus {
 enum ApplicationType {
   GARAGE
   MECHANIC
+}
+
+// Payment-related enums
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  MOBILE_MONEY
+  BANK_TRANSFER
+  INSURANCE
 }

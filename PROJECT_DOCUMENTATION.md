@@ -51,6 +51,9 @@ The database schema supports a multi-role system with the following core entitie
 - `OngoingService`: Active services being performed with completion tracking
 - `AdditionalService`: Extra services requested during service delivery
 - `Notification`: Real-time communication system between users
+- `Payment`: Payment processing and transaction management system
+- `Invoice`: Invoice generation and management system
+- `InvoiceItem`: Detailed invoice line items with service breakdowns
 
 ### Database Patterns
 - All tables use auto-incrementing integer primary keys
@@ -158,7 +161,14 @@ All API endpoints follow RESTful conventions under `/api/` directory:
  └── performance/     # Individual mechanic performance metrics
 
 /api/ratings/        # Rating and feedback system
- ├── route           # Rating submission and retrieval with customer/garage filtering
+  ├── route           # Rating submission and retrieval with customer/garage filtering
+
+/api/payments/       # Payment processing system
+  ├── route           # Payment creation and history with filtering
+  └── [id]/route      # Individual payment management and status updates
+
+/api/invoices/       # Invoice management system
+  ├── route           # Invoice generation and retrieval
 ```
 
 ### API Patterns
@@ -269,6 +279,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 ### Administrative Interfaces
 - **System Admin Applications**: Centralized application review for garage and mechanic approvals
 - **System Admin Services**: Complete service catalog management with create, edit, delete operations
+- **System Admin Payments**: Payment processing oversight with status management and analytics
 - **Garage Admin Applications**: Mechanic application management for garage-specific approvals
 - **Garage Admin Services**: Service portfolio management with availability controls
 - **Enhanced Dashboards**: Modern card-based interfaces with feature status and navigation
@@ -287,6 +298,13 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Admin Moderation Tools**: Bulk rating management and content filtering
 - **Rating Analytics Integration**: Performance metrics and trend analysis
 
+### Payment Processing System
+- **PaymentForm Component**: Interactive payment form with multiple payment method support
+- **PaymentHistory Component**: Comprehensive payment history with filtering and invoice viewing
+- **InvoiceDisplay Component**: Professional invoice viewing with detailed line items
+- **Payment Management Dashboard**: Admin interface for payment oversight and status updates
+- **Payment Status Tracking**: Real-time payment status monitoring and updates
+
 ### Advanced Service Tracking Interfaces
 - **Mechanic Service Dashboard**: Comprehensive service tracking with real-time status updates, ongoing service management, and completion workflows
 - **Customer Progress Tracking**: Real-time service timeline with status updates, additional service approvals, and completion notifications
@@ -299,6 +317,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **System Admin User Management**: Advanced user search, filtering, pagination with bulk operations for role changes and status updates
 - **System Admin Garage Management**: Garage approval/removal workflows with performance metrics and bulk operations
 - **System Admin Feedback Monitoring**: Rating distribution analysis, content moderation, and bulk rating management
+- **System Admin Payment Management**: Payment processing oversight, transaction monitoring, and payment analytics
 - **System Admin Analytics Dashboard**: System-wide KPIs, performance metrics, trend analysis, and real-time monitoring
 - **Garage Admin Mechanic Management**: Performance grading system (A+ to D), completion rates, customer satisfaction tracking
 - **Garage Admin Analytics Dashboard**: Garage-specific metrics, service analytics, mechanic performance comparisons
@@ -359,7 +378,7 @@ Each role has dedicated dashboard pages following a consistent structure:
 
 ---
 
-## Current Implementation Status (Milestone 8)
+## Current Implementation Status (Milestone 9)
 
 ### Functional Features
 - **User Registration**: Customer self-registration with profile management
@@ -385,6 +404,10 @@ Each role has dedicated dashboard pages following a consistent structure:
 - **Performance Management System**: Multi-level performance tracking with grading, analytics, and personal metrics
 - **Comprehensive Analytics Platform**: System-wide, garage-specific, and individual performance analytics
 - **Rating & Feedback System**: Interactive 1-10 star rating system with comment functionality, customer feedback management, admin moderation tools, rating-based garage ranking and filtering
+- **Payment Processing System**: Multiple payment methods (Cash, Card, Mobile Money, Bank Transfer, Insurance), real-time payment processing, transaction tracking, and payment status management
+- **Invoice Management**: Automatic invoice generation, detailed invoice tracking, payment-invoice association, and professional invoice display
+- **Payment History & Tracking**: Comprehensive payment history for customers, payment status monitoring, transaction ID management, and payment analytics
+- **Admin Payment Management**: System-wide payment oversight, payment status updates, bulk payment operations, and payment analytics dashboard
 
 ### API Endpoints Available
 - Customer registration and profile management
@@ -408,9 +431,12 @@ Each role has dedicated dashboard pages following a consistent structure:
 - Mechanic performance APIs for individual and collective performance tracking
 - Advanced analytics APIs for system-wide and role-specific metrics
 - Rating and feedback APIs for customer reviews, rating submission, and moderation
+- Payment processing APIs for multiple payment methods, transaction management, and payment tracking
+- Invoice management APIs for automatic invoice generation, invoice tracking, and payment-invoice association
+- Admin payment management APIs for payment oversight, status updates, and payment analytics
 
 ### User Workflows Implemented
-1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing → Service Request Creation → Request Status Tracking → Service Progress Updates → Additional Service Approval → Service Completion → Rating & Feedback Submission
+1. **Customer Journey**: Registration → Profile Setup → Vehicle Management → Garage Discovery → Service Browsing → Service Request Creation → Request Status Tracking → Service Progress Updates → Additional Service Approval → Service Completion → Payment Processing → Invoice Management → Rating & Feedback Submission
 2. **Garage Owner Journey**: Application → System Admin Approval → Profile Management → Service Portfolio Setup → Mechanic Recruitment → Request Oversight → Service Monitoring
 3. **Mechanic Journey**: Application → Garage Admin Approval → Account Activation → Request Acceptance → Service Delivery → Status Updates → Service Completion
 4. **Admin Journey**: Application Review → Approval/Rejection → User Management → Service Catalog Management → System Oversight
@@ -418,7 +444,8 @@ Each role has dedicated dashboard pages following a consistent structure:
 6. **Service Request Flow**: Customer Location Capture → Garage Selection → Request Submission → Mechanic Assignment → Status Updates → Service Completion
 7. **Advanced Service Tracking**: Service Request → Mechanic Assignment → Real-time Status Updates → Ongoing Service Management → Additional Service Requests → Customer Approvals → Service Completion → Final Pricing
 8. **Rating & Feedback System**: Service Completion → Customer Rating Submission → Optional Mechanic Selection → Comment Addition → Rating Validation → Garage Rating Update → Admin Moderation → Analytics Integration
-9. **Notification System**: Automated notification delivery across all service workflows with standardized templates and real-time updates
+9. **Payment Processing System**: Service Completion → Invoice Generation → Payment Method Selection → Payment Processing → Payment Confirmation → Invoice Payment Status Update → Payment History Tracking
+10. **Notification System**: Automated notification delivery across all service workflows with standardized templates and real-time updates including payment notifications
 9. **Admin Management Workflows**:
     - **System Admin**: User Management → Role Assignment → Garage Oversight → Performance Analytics → Feedback Moderation → Rating Analytics → Content Management
     - **Garage Admin**: Mechanic Performance Review → Service Analytics → Team Management → Performance Grading → Customer Feedback Analysis
@@ -434,6 +461,7 @@ The system implements comprehensive administrative interfaces with role-based ma
 - **User Management**: Advanced search, filtering, pagination with bulk role changes and status updates
 - **Garage Control**: Approval workflows, removal processes, performance tracking, and bulk operations
 - **Feedback Monitoring**: Rating analysis, content moderation, bulk management, and trend tracking
+- **Payment Management**: Payment processing oversight, payment status updates, transaction monitoring, and payment analytics
 - **System Analytics**: Real-time KPIs, performance metrics, growth analysis, and system health monitoring
 
 **Garage Admin Capabilities:**
@@ -468,6 +496,11 @@ The system implements a comprehensive notification framework with standardized t
 - `ADDITIONAL_SERVICE_REQUESTED`: Additional service approval requests
 - `ADDITIONAL_SERVICE_APPROVED/DECLINED`: Customer responses to additional services
 - `SERVICE_COMPLETION`: Final service completion with pricing information
+- `PAYMENT_COMPLETED`: Payment completion notifications to customers and garages
+- `PAYMENT_FAILED`: Payment failure notifications to customers
+- `PAYMENT_REFUNDED`: Payment refund notifications to customers and garages
+- `PAYMENT_STATUS_UPDATE`: Payment status update notifications
+- `INVOICE_GENERATED`: Invoice generation notifications to customers
 
 ### Notification Infrastructure
 - **Centralized Utility**: [`notifications.ts`](src/utils/notifications.ts:1) provides standardized notification creation
@@ -483,6 +516,9 @@ All API endpoints automatically trigger appropriate notifications:
 - Status updates notify customers with approval requirements
 - Service progress notifications keep all parties informed
 - Completion notifications provide final pricing and summaries
+- Payment processing triggers payment completion notifications
+- Invoice generation sends invoice notifications to customers
+- Payment status updates notify relevant parties about changes
 
 ---
 

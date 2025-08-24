@@ -4,11 +4,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { formatDateTime } from '@/utils/common';
 import type { ServiceRequest, VehicleStatus, Notification } from '@/types/auth';
+import PaymentHistory from '@/components/PaymentHistory';
+import PaymentForm from '@/components/PaymentForm';
+import InvoiceDisplay from '@/components/InvoiceDisplay';
 
 function CustomerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
+
+  // Helper function to validate tab values
+  const getValidTab = (tab: string | null): 'overview' | 'requests' | 'tracking' | 'payments' | 'feedback' | 'notifications' => {
+    const validTabs: readonly string[] = ['overview', 'requests', 'tracking', 'payments', 'feedback', 'notifications'];
+    return validTabs.includes(tab || '') ? (tab as 'overview' | 'requests' | 'tracking' | 'payments' | 'feedback' | 'notifications') : 'overview';
+  };
+
+  const [activeTab, setActiveTab] = useState<'overview' | 'requests' | 'tracking' | 'payments' | 'feedback' | 'notifications'>(getValidTab(searchParams.get('tab')));
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,6 +30,12 @@ function CustomerDashboardContent() {
   const [vehicleStatuses, setVehicleStatuses] = useState<VehicleStatus[]>([]);
   const [selectedServiceRequest, setSelectedServiceRequest] = useState<number | null>(null);
   const [trackingLoading, setTrackingLoading] = useState(false);
+
+  // Payment states
+  const [selectedPaymentRequest, setSelectedPaymentRequest] = useState<ServiceRequest | null>(null);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<number | null>(null);
+  const [showInvoiceDisplay, setShowInvoiceDisplay] = useState(false);
 
   const fetchRequests = useCallback(async () => {
     if (activeTab !== 'requests' && activeTab !== 'tracking') return;
@@ -188,6 +204,17 @@ function CustomerDashboardContent() {
     }
   };
 
+  const handlePaymentSuccess = () => {
+    setShowPaymentForm(false);
+    setSelectedPaymentRequest(null);
+    // Optionally refresh payment history
+  };
+
+  const handleViewInvoice = (invoiceId: number) => {
+    setSelectedInvoiceId(invoiceId);
+    setShowInvoiceDisplay(true);
+  };
+
   const getStatusBadge = (status: string) => {
     const statusStyles = {
       PENDING: 'bg-yellow-100 text-yellow-800',
@@ -269,7 +296,7 @@ function CustomerDashboardContent() {
           <div className="bg-white shadow rounded-lg mb-6">
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                {(['overview', 'requests', 'tracking', 'feedback', 'notifications'] as const).map((tab) => (
+                {(['overview', 'requests', 'tracking', 'payments', 'feedback', 'notifications'] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -282,6 +309,7 @@ function CustomerDashboardContent() {
                     {tab === 'overview' && 'Overview'}
                     {tab === 'requests' && 'My Requests'}
                     {tab === 'tracking' && 'Service Tracking'}
+                    {tab === 'payments' && 'Payments & Invoices'}
                     {tab === 'feedback' && 'My Reviews'}
                     {tab === 'notifications' && 'Notifications'}
                     {tab === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
@@ -471,6 +499,42 @@ function CustomerDashboardContent() {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Payments Tab */}
+              {activeTab === 'payments' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900">Payments & Invoices</h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Payment History */}
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h3>
+                      <PaymentHistory onViewInvoice={handleViewInvoice} />
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => setActiveTab('requests')}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                        >
+                          View Service Requests
+                        </button>
+                        <button
+                          onClick={() => router.push('/customer/garages')}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                        >
+                          Request New Service
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -754,6 +818,63 @@ function CustomerDashboardContent() {
               )}
             </div>
           </div>
+
+          {/* Payment Form Modal */}
+          {showPaymentForm && selectedPaymentRequest && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Make Payment - Request #{selectedPaymentRequest.id}
+                    </h3>
+                    <button
+                      onClick={() => setShowPaymentForm(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <PaymentForm
+                    serviceRequestId={selectedPaymentRequest.id}
+                    amount={0} // This should be calculated based on the service request
+                    description={`Payment for Service Request #${selectedPaymentRequest.id}`}
+                    onSubmitSuccess={handlePaymentSuccess}
+                    onCancel={() => setShowPaymentForm(false)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Invoice Display Modal */}
+          {showInvoiceDisplay && selectedInvoiceId && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Invoice Details
+                    </h3>
+                    <button
+                      onClick={() => setShowInvoiceDisplay(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <InvoiceDisplay
+                    invoiceId={selectedInvoiceId}
+                    onClose={() => setShowInvoiceDisplay(false)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Request Details Modal */}
           {selectedRequest && (
