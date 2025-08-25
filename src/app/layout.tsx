@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1, maximum-scale=5",
   themeColor: "#3B82F6",
   robots: "index, follow",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "AutoService - Car Service Management",
     description: "Professional automotive service center management platform",
