@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import { UserType } from '@/generated/prisma';
 import type { ApiResponse } from '@/types/auth';
@@ -11,14 +10,25 @@ type PrismaWhereInput = {
   OR?: Array<{ [key: string]: unknown }>;
 };
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  // Try to get token from cookie first
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  // Fallback to Authorization header
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 interface UserWithCounts {
@@ -56,13 +66,22 @@ interface UsersResponse {
 // GET /api/admin/users - List all users with filtering and pagination
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<UsersResponse>>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
     
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
+    if (!token) {
       return NextResponse.json({
         success: false,
-        error: 'Unauthorized access'
+        error: 'Authentication required'
       }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access - System Admin required'
+      }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -153,13 +172,22 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 // PATCH /api/admin/users - Update user role or status
 export async function PATCH(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
     
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
+    if (!token) {
       return NextResponse.json({
         success: false,
-        error: 'Unauthorized access'
+        error: 'Authentication required'
       }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access - System Admin required'
+      }, { status: 403 });
     }
 
     const body = await request.json();
@@ -173,7 +201,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
     }
 
     // Prevent system admin from modifying their own account
-    const currentUserId = parseInt(session.user.id);
+    const currentUserId = decoded.id;
     if (userIds.includes(currentUserId)) {
       return NextResponse.json({
         success: false,

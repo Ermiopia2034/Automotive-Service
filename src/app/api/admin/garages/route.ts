@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import type { ApiResponse } from '@/types/auth';
 
@@ -10,14 +9,23 @@ type PrismaWhereInput = {
   OR?: Array<{ [key: string]: unknown }>;
 };
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 interface GarageWithDetails {
@@ -60,13 +68,22 @@ interface GaragesResponse {
 // GET /api/admin/garages - List all garages with filtering and pagination
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<GaragesResponse>>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
     
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
       }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access - System Admin required'
+      }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -177,13 +194,22 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 // PATCH /api/admin/garages - Update garage status (approve/remove/restore)
 export async function PATCH(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
     
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
       }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access - System Admin required'
+      }, { status: 403 });
     }
 
     const body = await request.json();
@@ -261,13 +287,22 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
 // DELETE /api/admin/garages - Permanently remove garages (hard delete)
 export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
     
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
       }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access - System Admin required'
+      }, { status: 403 });
     }
 
     const body = await request.json();

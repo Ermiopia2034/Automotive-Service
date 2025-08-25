@@ -1,22 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import { UserType } from '@/generated/prisma';
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    email: string;
-    userType: UserType;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession;
+    const token = getTokenFromRequest(request);
 
-    if (!session || session.user.userType !== UserType.MECHANIC) {
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    if (decoded.userType !== UserType.MECHANIC) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized access' },
         { status: 401 }
@@ -26,7 +54,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const timeframe = searchParams.get('timeframe') || '30'; // days
 
-    const mechanicId = parseInt(session.user.id);
+    const mechanicId = decoded.id;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - parseInt(timeframe));
 

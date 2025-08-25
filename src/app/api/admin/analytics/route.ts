@@ -1,17 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import type { ApiResponse } from '@/types/auth';
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  // Try to get token from cookie first
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  // Fallback to Authorization header
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 interface SystemAnalytics {
@@ -123,29 +133,38 @@ interface GarageAnalytics {
 // GET /api/admin/analytics - Get system or garage analytics
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<SystemAnalytics | GarageAnalytics>>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
     
-    if (!session?.user || !['SYSTEM_ADMIN', 'GARAGE_ADMIN'].includes(session.user.userType)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
       }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    
+    if (!['SYSTEM_ADMIN', 'GARAGE_ADMIN'].includes(decoded.userType)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access - Admin required'
+      }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const scope = searchParams.get('scope') || 'system'; // system or garage
     const timeframe = searchParams.get('timeframe') || '30'; // days
 
-    if (session.user.userType === 'SYSTEM_ADMIN' && scope === 'system') {
+    if (decoded.userType === 'SYSTEM_ADMIN' && scope === 'system') {
       // System-wide analytics for System Admin
       const analytics = await getSystemAnalytics(parseInt(timeframe));
       return NextResponse.json({
         success: true,
         data: analytics
       });
-    } else if (session.user.userType === 'GARAGE_ADMIN') {
+    } else if (decoded.userType === 'GARAGE_ADMIN') {
       // Garage-specific analytics for Garage Admin
-      const analytics = await getGarageAnalytics(parseInt(session.user.id), parseInt(timeframe));
+      const analytics = await getGarageAnalytics(decoded.id, parseInt(timeframe));
       return NextResponse.json({
         success: true,
         data: analytics

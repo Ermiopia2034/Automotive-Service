@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import type { ApiResponse } from '@/types/auth';
 
@@ -10,14 +9,23 @@ type PrismaWhereInput = {
   OR?: Array<{ [key: string]: unknown }>;
 };
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 interface MechanicPerformance {
@@ -73,12 +81,30 @@ interface MechanicsPerformanceResponse {
 // GET /api/admin/mechanic-performance - Get mechanic performance data
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<MechanicsPerformanceResponse>>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-    
-    if (!session?.user || !['SYSTEM_ADMIN', 'GARAGE_ADMIN'].includes(session.user.userType)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
+    if (!['SYSTEM_ADMIN', 'GARAGE_ADMIN'].includes(decoded.userType)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access'
       }, { status: 401 });
     }
 
@@ -94,10 +120,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     const where: PrismaWhereInput = {};
     
     // For garage admin, only show their garage's mechanics
-    if (session.user.userType === 'GARAGE_ADMIN') {
+    if (decoded.userType === 'GARAGE_ADMIN') {
       // Get the garage admin's garage
       const garageAdmin = await prisma.user.findUnique({
-        where: { id: parseInt(session.user.id) },
+        where: { id: decoded.id },
         include: { garagesOwned: true }
       });
       
@@ -316,12 +342,30 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 // PATCH /api/admin/mechanic-performance - Update mechanic status or add performance notes
 export async function PATCH(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-    
-    if (!session?.user || !['SYSTEM_ADMIN', 'GARAGE_ADMIN'].includes(session.user.userType)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
+    if (!['SYSTEM_ADMIN', 'GARAGE_ADMIN'].includes(decoded.userType)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access'
       }, { status: 401 });
     }
 
@@ -336,9 +380,9 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
     }
 
     // For garage admin, verify they own the mechanics
-    if (session.user.userType === 'GARAGE_ADMIN') {
+    if (decoded.userType === 'GARAGE_ADMIN') {
       const garageAdmin = await prisma.user.findUnique({
-        where: { id: parseInt(session.user.id) },
+        where: { id: decoded.id },
         include: { garagesOwned: true }
       });
       

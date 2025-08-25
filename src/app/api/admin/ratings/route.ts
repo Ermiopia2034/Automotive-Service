@@ -1,24 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import type { ApiResponse } from '@/types/auth';
+
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
+}
 
 // Type for Prisma where clauses with flexible structure
 type PrismaWhereInput = {
   [key: string]: unknown;
   OR?: Array<{ [key: string]: unknown }>;
 };
-
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
-}
 
 interface RatingWithDetails {
   id: number;
@@ -62,12 +70,30 @@ interface RatingsResponse {
 // GET /api/admin/ratings - List all ratings with filtering and pagination
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<RatingsResponse>>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-    
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access'
       }, { status: 401 });
     }
 
@@ -223,12 +249,30 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 // DELETE /api/admin/ratings - Delete inappropriate ratings
 export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-    
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access'
       }, { status: 401 });
     }
 
@@ -264,7 +308,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
     });
 
     // Log the deletion (in a real system, you might want to keep an audit log)
-    console.log(`System admin ${session.user.id} deleted ${ratingIds.length} ratings. Reason: ${reason}`, {
+    console.log(`System admin ${decoded.id} deleted ${ratingIds.length} ratings. Reason: ${reason}`, {
       deletedRatings: ratingsToDelete.map(r => ({
         id: r.id,
         customer: r.customer.username,
@@ -291,12 +335,30 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
 // PATCH /api/admin/ratings - Update rating status or flag inappropriate content
 export async function PATCH(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
-    
-    if (!session?.user || session.user.userType !== 'SYSTEM_ADMIN') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized access' 
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized access'
       }, { status: 401 });
     }
 

@@ -1,17 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import type { ApiResponse } from '@/types/auth';
 
-interface ExtendedSession {
-  user: {
-    id: string;
-    userType: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  userType: string;
+}
+
+function getTokenFromRequest(request: NextRequest): string | null {
+  const tokenFromCookie = request.cookies.get('auth-token')?.value;
+  if (tokenFromCookie) return tokenFromCookie;
+
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
 }
 
 // PATCH /api/payments/[id] - Update payment status (Admin only)
@@ -20,17 +28,28 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
 
-    if (!session?.user) {
+    if (!token) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
       }, { status: 401 });
     }
 
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
     // Check if user is admin
-    if (session.user.userType !== 'SYSTEM_ADMIN') {
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
       return NextResponse.json({
         success: false,
         error: 'Admin access required'
@@ -132,10 +151,10 @@ export async function PATCH(
     });
 
     // Create notification for customer about payment status change
-    if (existingPayment.customerId !== parseInt(session.user.id)) {
+    if (existingPayment.customerId !== decoded.id) {
       await prisma.notification.create({
         data: {
-          senderId: parseInt(session.user.id),
+          senderId: decoded.id,
           receiverId: existingPayment.customerId,
           type: 'PAYMENT_STATUS_UPDATE',
           title: `Payment Status Updated`,
@@ -167,17 +186,28 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse>> {
   try {
-    const session = await getServerSession(authOptions) as ExtendedSession | null;
+    const token = getTokenFromRequest(request);
 
-    if (!session?.user) {
+    if (!token) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
       }, { status: 401 });
     }
 
+    // Verify and decode JWT token
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as JwtPayload;
+    } catch {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid token'
+      }, { status: 401 });
+    }
+
     // Check if user is admin
-    if (session.user.userType !== 'SYSTEM_ADMIN') {
+    if (decoded.userType !== 'SYSTEM_ADMIN') {
       return NextResponse.json({
         success: false,
         error: 'Admin access required'
