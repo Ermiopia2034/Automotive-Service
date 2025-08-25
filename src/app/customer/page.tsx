@@ -7,6 +7,7 @@ import type { ServiceRequest, VehicleStatus, Notification } from '@/types/auth';
 import PaymentHistory from '@/components/PaymentHistory';
 import PaymentForm from '@/components/PaymentForm';
 import InvoiceDisplay from '@/components/InvoiceDisplay';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 function CustomerDashboardContent() {
   const router = useRouter();
@@ -113,9 +114,8 @@ function CustomerDashboardContent() {
         },
         body: JSON.stringify({
           status: 'CANCELLED'
-        }),
+        })
       });
-
       const result = await response.json();
 
       if (result.success) {
@@ -139,9 +139,8 @@ function CustomerDashboardContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ approved }),
+        body: JSON.stringify({ approved })
       });
-
       const result = await response.json();
 
       if (result.success && selectedServiceRequest) {
@@ -164,9 +163,8 @@ function CustomerDashboardContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ approved }),
+        body: JSON.stringify({ approved })
       });
-
       const result = await response.json();
 
       if (result.success && selectedServiceRequest) {
@@ -187,7 +185,7 @@ function CustomerDashboardContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ notificationIds }),
+        body: JSON.stringify({ notificationIds })
       });
       await fetchNotifications();
     } catch (error) {
@@ -207,7 +205,7 @@ function CustomerDashboardContent() {
   const handlePaymentSuccess = () => {
     setShowPaymentForm(false);
     setSelectedPaymentRequest(null);
-    // Optionally refresh payment history
+    fetchRequests();
   };
 
   const handleViewInvoice = (invoiceId: number) => {
@@ -239,730 +237,655 @@ function CustomerDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Customer Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            {notifications.filter(n => !n.read).length > 0 && (
-              <div className="relative">
-                <button
-                  onClick={() => setActiveTab('notifications')}
-                  className="relative bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Notifications
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+                Customer Dashboard
+              </h1>
+              {notifications.filter(n => !n.read).length > 0 && (
+                <p className="text-sm text-gray-600 mt-1 sm:hidden">
+                  {notifications.filter(n => !n.read).length} unread notification{notifications.filter(n => !n.read).length !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
+            
+            <div className="sm:hidden">
+              <button
+                onClick={() => setActiveTab('notifications')}
+                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                aria-label={`View notifications (${notifications.filter(n => !n.read).length} unread)`}
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5h-5l5-5zm-3-4V7a4 4 0 00-8 0v6H2l4 4h8l4-4h-2z" />
+                </svg>
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" aria-hidden="true">
                     {notifications.filter(n => !n.read).length}
                   </span>
-                </button>
-              </div>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="hidden sm:flex sm:items-center sm:justify-end sm:space-x-3 mt-4 sm:mt-0 sm:absolute sm:top-4 sm:right-4 lg:right-8">
+            {notifications.filter(n => !n.read).length > 0 && (
+              <button
+                onClick={() => setActiveTab('notifications')}
+                className="relative bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-3 py-2 lg:px-4 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label={`View notifications (${notifications.filter(n => !n.read).length} unread)`}
+              >
+                <span className="hidden lg:inline">Notifications</span>
+                <span className="lg:hidden">Notif.</span>
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" aria-hidden="true">
+                  {notifications.filter(n => !n.read).length}
+                </span>
+              </button>
             )}
             <button
               onClick={() => router.push('/customer/profile')}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-3 py-2 lg:px-4 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              Profile
+              <span className="hidden lg:inline">Profile</span>
+              <span className="lg:hidden">👤</span>
             </button>
             <button
               onClick={() => router.push('/auth/change-password')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-3 py-2 lg:px-4 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Change Password
+              <span className="hidden lg:inline">Change Password</span>
+              <span className="lg:hidden">🔐</span>
             </button>
             <button
               onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-red-600 hover:bg-red-700 focus:bg-red-700 text-white px-3 py-2 lg:px-4 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
-              Logout
+              <span className="hidden lg:inline">Logout</span>
+              <span className="lg:hidden">🚪</span>
+            </button>
+          </div>
+
+          <div className="flex sm:hidden space-x-2 mt-4">
+            <button
+              onClick={() => router.push('/customer/profile')}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              👤 Profile
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              🚪 Logout
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {successMessage && (
-            <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-              {successMessage}
+      <main id="main-content" className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8" role="main">
+        {successMessage && (
+          <div className="mb-4 sm:mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg" role="alert" aria-live="polite">
+            <div className="flex items-center">
+              <svg className="h-4 w-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm">{successMessage}</span>
             </div>
-          )}
+          </div>
+        )}
 
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+        {error && (
+          <div className="mb-4 sm:mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" role="alert" aria-live="assertive">
+            <div className="flex items-center">
+              <svg className="h-4 w-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm">{error}</span>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Tab Navigation */}
-          <div className="bg-white shadow rounded-lg mb-6">
-            <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                {(['overview', 'requests', 'tracking', 'payments', 'feedback', 'notifications'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === tab
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    {tab === 'overview' && 'Overview'}
-                    {tab === 'requests' && 'My Requests'}
-                    {tab === 'tracking' && 'Service Tracking'}
-                    {tab === 'payments' && 'Payments & Invoices'}
-                    {tab === 'feedback' && 'My Reviews'}
-                    {tab === 'notifications' && 'Notifications'}
-                    {tab === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
-                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                        {notifications.filter(n => !n.read).length}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </nav>
+        <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+          <div className="border-b border-gray-200 bg-gray-50">
+            <div className="sm:hidden px-4 py-3">
+              <label htmlFor="tab-select" className="sr-only">Select a tab</label>
+              <select
+                id="tab-select"
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+                className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="overview">📊 Overview</option>
+                <option value="requests">📝 Service Requests</option>
+                <option value="tracking">🚗 Service Tracking</option>
+                <option value="payments">💳 Payments</option>
+                <option value="feedback">⭐ Feedback</option>
+                <option value="notifications">🔔 Notifications</option>
+              </select>
             </div>
 
-            <div className="p-6">
-              {/* Overview Tab */}
-              {activeTab === 'overview' && (
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Welcome, Customer!</h2>
-                  <p className="text-gray-600 mb-8 text-center">
-                    Manage your profile, vehicles, and request automotive services with detailed progress tracking.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <button
-                      onClick={() => router.push('/customer/profile')}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
-                    >
-                      <div className="text-xl mb-2">👤</div>
-                      <div>Manage Profile</div>
-                      <div className="text-sm opacity-75 mt-1">Update personal info & vehicles</div>
-                    </button>
+            <nav className="hidden sm:flex sm:space-x-6 lg:space-x-8 px-4 sm:px-6 overflow-x-auto" aria-label="Dashboard sections">
+              {(['overview', 'requests', 'tracking', 'payments', 'feedback', 'notifications'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 ${
+                    activeTab === tab
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  aria-current={activeTab === tab ? 'page' : undefined}
+                >
+                  {tab === 'overview' && '📊 Overview'}
+                  {tab === 'requests' && '📝 Service Requests'}
+                  {tab === 'tracking' && '🚗 Service Tracking'}
+                  {tab === 'payments' && '💳 Payments'}
+                  {tab === 'feedback' && '⭐ Feedback'}
+                  {tab === 'notifications' && '🔔 Notifications'}
+                  {tab === 'notifications' && notifications.filter(n => !n.read).length > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[1.25rem] h-5 flex items-center justify-center" aria-label={`${notifications.filter(n => !n.read).length} unread notifications`}>
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </nav>
+          </div>
 
-                    <button
-                      onClick={() => router.push('/customer/garages')}
-                      className="bg-green-600 hover:bg-green-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
-                    >
-                      <div className="text-xl mb-2">🔍</div>
-                      <div>Find Garages</div>
-                      <div className="text-sm opacity-75 mt-1">Locate nearby services</div>
-                    </button>
-
-                    <button
-                      onClick={() => router.push('/customer/feedback')}
-                      className="bg-yellow-600 hover:bg-yellow-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
-                    >
-                      <div className="text-xl mb-2">⭐</div>
-                      <div>My Reviews</div>
-                      <div className="text-sm opacity-75 mt-1">View and manage ratings</div>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab('tracking')}
-                      className="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
-                    >
-                      <div className="text-xl mb-2">📊</div>
-                      <div>Track Progress</div>
-                      <div className="text-sm opacity-75 mt-1">Real-time service updates</div>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab('requests')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg font-medium text-center transition-colors"
-                    >
-                      <div className="text-xl mb-2">📋</div>
-                      <div>My Requests</div>
-                      <div className="text-sm opacity-75 mt-1">Service request history</div>
-                    </button>
-                  </div>
-
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-blue-900 mb-3">Milestone 5: Advanced Service Tracking! 🚀</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-blue-700 font-medium mb-2">✅ New Features:</div>
-                        <ul className="text-sm text-blue-600 space-y-1">
-                          <li>• Real-time progress tracking with detailed updates</li>
-                          <li>• Approve/decline mechanic status updates</li>
-                          <li>• Review additional service requests</li>
-                          <li>• Track ongoing services with completion status</li>
-                          <li>• Receive instant notifications</li>
-                        </ul>
+          <div className="p-4 sm:p-6">
+            {activeTab === 'overview' && (
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Stats</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center">
+                        <div className="text-2xl text-blue-600 mr-3">📝</div>
+                        <div>
+                          <p className="text-sm font-medium text-blue-700">Total Requests</p>
+                          <p className="text-2xl font-bold text-blue-900">{requests.length}</p>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-blue-700 font-medium mb-2">🔧 Enhanced Workflow:</div>
-                        <ul className="text-sm text-blue-600 space-y-1">
-                          <li>• Mechanics provide detailed status updates</li>
-                          <li>• You approve work performed</li>
-                          <li>• Additional services require your approval</li>
-                          <li>• Complete transparency throughout service</li>
-                          <li>• Final pricing and completion confirmation</li>
-                        </ul>
+                    </div>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center">
+                        <div className="text-2xl text-green-600 mr-3">✅</div>
+                        <div>
+                          <p className="text-sm font-medium text-green-700">Active Services</p>
+                          <p className="text-2xl font-bold text-green-900">{activeRequests.length}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                      <div className="flex items-center">
+                        <div className="text-2xl text-purple-600 mr-3">🔔</div>
+                        <div>
+                          <p className="text-sm font-medium text-purple-700">Unread Notifications</p>
+                          <p className="text-2xl font-bold text-purple-900">{notifications.filter(n => !n.read).length}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {/* Requests Tab */}
-              {activeTab === 'requests' && (
-                <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">My Service Requests</h2>
-                    <button
-                      onClick={() => router.push('/customer/garages')}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      New Request
-                    </button>
-                  </div>
-
-                  {loading ? (
-                    <div className="text-center py-8">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                      <p className="mt-2 text-gray-600">Loading requests...</p>
-                    </div>
-                  ) : requests.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">No service requests yet</h3>
-                      <p className="mt-2 text-gray-600">Get started by finding a garage and requesting service.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+                    <div className="space-y-3">
                       <button
                         onClick={() => router.push('/customer/garages')}
-                        className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                        className="w-full flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        Find Garages
+                        <div className="flex items-center">
+                          <span className="text-2xl mr-3">🔍</span>
+                          <span className="font-medium text-gray-900">Find Garages</span>
+                        </div>
+                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('requests')}
+                        className="w-full flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <div className="flex items-center">
+                          <span className="text-2xl mr-3">📝</span>
+                          <span className="font-medium text-gray-900">View Service Requests</span>
+                        </div>
+                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {requests.map((request) => (
-                        <div
-                          key={request.id}
-                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white"
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  Request #{request.id}
-                                </h3>
-                                {getStatusBadge(request.status)}
-                                {['ACCEPTED', 'IN_PROGRESS'].includes(request.status) && (
-                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                    Track Progress Available
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-sm text-gray-600 space-y-1">
-                                <div>Garage: {request.garage.garageName}</div>
-                                <div>Vehicle: {request.vehicle.vehicleType} - {request.vehicle.plateCode} {request.vehicle.plateNumber}</div>
-                                <div>Requested: {formatDateTime(new Date(request.createdAt))}</div>
-                                {request.mechanic && (
-                                  <div>Assigned to: {request.mechanic.firstName} {request.mechanic.lastName}</div>
-                                )}
-                              </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
+                    {requests.slice(0, 3).length === 0 ? (
+                      <p className="text-gray-500 text-sm">No recent activity</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {requests.slice(0, 3).map((request) => (
+                          <div key={request.id} className="bg-white border border-gray-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">
+                                Request #{request.id}
+                              </span>
+                              {getStatusBadge(request.status)}
                             </div>
-                            <div className="flex space-x-2">
-                              {['ACCEPTED', 'IN_PROGRESS'].includes(request.status) && (
-                                <button
-                                  onClick={() => {
-                                    setActiveTab('tracking');
-                                    setSelectedServiceRequest(request.id);
-                                  }}
-                                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-md text-sm font-medium"
-                                >
-                                  Track
-                                </button>
-                              )}
-                              <button
-                                onClick={() => setSelectedRequest(request)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
-                              >
-                                Details
-                              </button>
-                              {canCancelRequest(request) && (
-                                <button
-                                  onClick={() => handleCancelRequest(request.id)}
-                                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium"
-                                >
-                                  Cancel
-                                </button>
-                              )}
-                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatDateTime(new Date(request.createdAt))}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'requests' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Service Requests</h2>
+                  <button
+                    onClick={() => router.push('/customer/garages')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    New Request
+                  </button>
+                </div>
+
+                {loading ? (
+                  <div className="text-center py-8">
+                    <LoadingSpinner size="lg" />
+                    <p className="text-gray-500 mt-2">Loading service requests...</p>
+                  </div>
+                ) : requests.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <div className="text-4xl mb-4">📝</div>
+                    <p className="text-gray-600 mb-4">No service requests yet.</p>
+                    <button
+                      onClick={() => router.push('/customer/garages')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Find a Garage
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {requests.map((request) => (
+                      <div
+                        key={request.id}
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setSelectedRequest(request)}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <h3 className="text-lg font-medium text-gray-900">Request #{request.id}</h3>
+                            {getStatusBadge(request.status)}
+                            {['ACCEPTED', 'IN_PROGRESS'].includes(request.status) && (
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                Tracking Available
+                              </span>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Payments Tab */}
-              {activeTab === 'payments' && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-900">Payments & Invoices</h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Payment History */}
-                    <div className="bg-white shadow rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment History</h3>
-                      <PaymentHistory onViewInvoice={handleViewInvoice} />
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="bg-white shadow rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                      <div className="space-y-3">
-                        <button
-                          onClick={() => setActiveTab('requests')}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                        >
-                          View Service Requests
-                        </button>
-                        <button
-                          onClick={() => router.push('/customer/garages')}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                        >
-                          Request New Service
-                        </button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
+                          <div>
+                            <div>Garage: {request.garage.garageName}</div>
+                            <div>Requested: {formatDateTime(new Date(request.createdAt))}</div>
+                            {request.mechanic && (
+                              <div>Assigned to: {request.mechanic.firstName} {request.mechanic.lastName}</div>
+                            )}
+                          </div>
+                          <div className="flex space-x-2">
+                            {['ACCEPTED', 'IN_PROGRESS'].includes(request.status) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveTab('tracking');
+                                  setSelectedServiceRequest(request.id);
+                                }}
+                                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
+                              >
+                                Track Progress
+                              </button>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedRequest(request);
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+                            >
+                              View Details
+                            </button>
+                            {canCancelRequest(request) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCancelRequest(request.id);
+                                }}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            )}
 
-              {/* Service Tracking Tab */}
-              {activeTab === 'tracking' && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-900">Real-time Service Tracking</h2>
+            {activeTab === 'payments' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold text-gray-900">Payment History</h2>
+                <PaymentHistory
+                  onViewInvoice={handleViewInvoice}
+                />
+              </div>
+            )}
+
+            {activeTab === 'tracking' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold text-gray-900">Service Tracking</h2>
+
+                {activeRequests.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <div className="text-4xl mb-4">🚗</div>
+                    <p className="text-gray-600 mb-4">No active services to track.</p>
+                    <button
+                      onClick={() => setActiveTab('requests')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      View Requests
+                    </button>
                   </div>
-
-                  {activeRequests.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <div className="text-6xl mb-4">🔧</div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Services</h3>
-                      <p className="text-gray-600 mb-4">You do not have any services currently being worked on.</p>
-                      <button
-                        onClick={() => router.push('/customer/garages')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                ) : (
+                  <div>
+                    <div className="mb-6">
+                      <label htmlFor="service-select" className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Service Request to Track:
+                      </label>
+                      <select
+                        id="service-select"
+                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        value={selectedServiceRequest || ''}
+                        onChange={(e) => {
+                          const requestId = parseInt(e.target.value);
+                          setSelectedServiceRequest(requestId);
+                          if (requestId) {
+                            fetchVehicleStatuses(requestId);
+                          }
+                        }}
                       >
-                        Request Service
-                      </button>
+                        <option value="">Select a request...</option>
+                        {activeRequests.map((request) => (
+                          <option key={request.id} value={request.id}>
+                            Request #{request.id} - {request.garage.garageName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="bg-white shadow rounded-lg p-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select Service Request to Track:
-                        </label>
-                        <select
-                          value={selectedServiceRequest || ''}
-                          onChange={(e) => {
-                            const requestId = parseInt(e.target.value);
-                            setSelectedServiceRequest(requestId);
-                            if (requestId) {
-                              fetchVehicleStatuses(requestId);
-                            }
-                          }}
-                          className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Select a request...</option>
-                          {activeRequests.map((request) => (
-                            <option key={request.id} value={request.id}>
-                              Request #{request.id} - {request.garage.garageName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
 
-                      {selectedServiceRequest && (
-                        <div className="bg-white shadow rounded-lg p-6">
-                          {trackingLoading ? (
-                            <div className="text-center py-8">
-                              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                              <p className="mt-2 text-gray-600">Loading service tracking...</p>
-                            </div>
-                          ) : vehicleStatuses.length === 0 ? (
-                            <div className="text-center py-8 text-gray-500">
-                              <p>No status updates available yet.</p>
-                              <p className="text-sm mt-1">The mechanic will provide updates soon.</p>
-                            </div>
-                          ) : (
+                    {selectedServiceRequest && (
+                      <div className="bg-white shadow rounded-lg p-6">
+                        {trackingLoading ? (
+                          <div className="text-center py-8">
+                            <LoadingSpinner size="lg" />
+                            <p className="text-gray-500 mt-2">Loading tracking information...</p>
+                          </div>
+                        ) : vehicleStatuses.length === 0 ? (
+                          <div className="text-center py-8">
+                            <p className="text-gray-500">No tracking information available yet.</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-6">Service Progress</h3>
                             <ServiceTrackingTimeline
                               statuses={vehicleStatuses}
                               onApproveStatus={handleApproveStatusUpdate}
                               onApproveAdditionalService={handleApproveAdditionalService}
                             />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Feedback Tab */}
-              {activeTab === 'feedback' && (
-                <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">My Reviews & Ratings</h2>
-                    <button
-                      onClick={() => router.push('/customer/feedback')}
-                      className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      View All Reviews
-                    </button>
-                  </div>
-
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="text-2xl">⭐</div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-blue-900">Share Your Experience</h3>
-                        <p className="text-blue-700">Your reviews help other customers make informed decisions</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">How to Rate Services</h4>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Rate after service completion</li>
-                          <li>• Be honest and constructive</li>
-                          <li>• Mention specific mechanics if applicable</li>
-                          <li>• Include details in your comments</li>
-                        </ul>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Rating Scale</h4>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">10 - Excellent</span>
-                            <span className="text-green-600">⭐⭐⭐⭐⭐</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">7-9 - Good</span>
-                            <span className="text-blue-600">⭐⭐⭐⭐</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">4-6 - Fair</span>
-                            <span className="text-yellow-600">⭐⭐⭐</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">1-3 - Poor</span>
-                            <span className="text-red-600">⭐⭐</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 text-center">
-                      <button
-                        onClick={() => router.push('/customer/garages')}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"
-                      >
-                        Find Garages to Review
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Notifications Tab */}
-              {activeTab === 'notifications' && (
-                <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
-                    <button
-                      onClick={handleLogout}
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      Logout
-                    </button>
-                  </div>
-
-                  {activeRequests.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <div className="text-6xl mb-4">🔧</div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Services</h3>
-                      <p className="text-gray-600 mb-4">You don&apos;t have any services currently being worked on.</p>
-                      <button
-                        onClick={() => router.push('/customer/garages')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      >
-                        Request Service
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="bg-white shadow rounded-lg p-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select Service Request to Track:
-                        </label>
-                        <select
-                          value={selectedServiceRequest || ''}
-                          onChange={(e) => {
-                            const requestId = parseInt(e.target.value);
-                            setSelectedServiceRequest(requestId);
-                            if (requestId) {
-                              fetchVehicleStatuses(requestId);
-                            }
-                          }}
-                          className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Choose a request to track</option>
-                          {activeRequests.map((request) => (
-                            <option key={request.id} value={request.id}>
-                              Request #{request.id} - {request.garage.garageName} ({request.vehicle.vehicleType})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {selectedServiceRequest && (
-                        <div className="bg-white shadow rounded-lg">
-                          <div className="px-4 py-5 sm:p-6">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">
-                              Service Progress & Updates
-                            </h3>
-                            
-                            {trackingLoading ? (
-                              <div className="text-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                                <p className="mt-2 text-gray-600">Loading progress...</p>
-                              </div>
-                            ) : vehicleStatuses.length === 0 ? (
-                              <div className="text-center py-8 text-gray-500">
-                                <div className="text-4xl mb-3">⏳</div>
-                                <p>No updates from your mechanic yet.</p>
-                                <p className="text-sm">You&apos;ll see detailed progress updates here once work begins.</p>
-                              </div>
-                            ) : (
-                              <ServiceTrackingTimeline
-                                statuses={vehicleStatuses}
-                                onApproveStatus={handleApproveStatusUpdate}
-                                onApproveAdditionalService={handleApproveAdditionalService}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Notifications Tab */}
-              {activeTab === 'notifications' && (
-                <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">
-                      Notifications ({notifications.filter(n => !n.read).length} unread)
-                    </h2>
-                    {notifications.filter(n => !n.read).length > 0 && (
-                      <button
-                        onClick={() => markNotificationsAsRead(notifications.filter(n => !n.read).map(n => n.id))}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      >
-                        Mark All Read
-                      </button>
-                    )}
-                  </div>
-                  
-                  {notifications.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <div className="text-4xl mb-4">🔔</div>
-                      <p className="text-gray-600">No notifications yet.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`border rounded-lg p-4 ${
-                            notification.read ? 'bg-gray-50 border-gray-200' : 'bg-blue-50 border-blue-200'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
-                            <span className="text-xs text-gray-500">
-                              {formatDateTime(new Date(notification.createdAt))}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700">{notification.message}</p>
-                          <div className="text-xs text-gray-500 mt-1">
-                            From: {notification.sender.firstName} {notification.sender.lastName}
-                          </div>
-                          {!notification.read && (
-                            <button
-                              onClick={() => markNotificationsAsRead([notification.id])}
-                              className="text-xs text-blue-600 hover:text-blue-500 mt-2"
-                            >
-                              Mark as read
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Payment Form Modal */}
-          {showPaymentForm && selectedPaymentRequest && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-                <div className="mt-3">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Make Payment - Request #{selectedPaymentRequest.id}
-                    </h3>
-                    <button
-                      onClick={() => setShowPaymentForm(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  <PaymentForm
-                    serviceRequestId={selectedPaymentRequest.id}
-                    amount={0} // This should be calculated based on the service request
-                    description={`Payment for Service Request #${selectedPaymentRequest.id}`}
-                    onSubmitSuccess={handlePaymentSuccess}
-                    onCancel={() => setShowPaymentForm(false)}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Invoice Display Modal */}
-          {showInvoiceDisplay && selectedInvoiceId && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-                <div className="mt-3">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Invoice Details
-                    </h3>
-                    <button
-                      onClick={() => setShowInvoiceDisplay(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  <InvoiceDisplay
-                    invoiceId={selectedInvoiceId}
-                    onClose={() => setShowInvoiceDisplay(false)}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Request Details Modal */}
-          {selectedRequest && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-                <div className="mt-3">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Service Request #{selectedRequest.id}
-                    </h3>
-                    <button
-                      onClick={() => setSelectedRequest(null)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-700">Status:</span>
-                      {getStatusBadge(selectedRequest.status)}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-gray-700">Garage Information</h4>
-                        <div>Name: {selectedRequest.garage.garageName}</div>
-                        <div>Request Date: {formatDateTime(new Date(selectedRequest.createdAt))}</div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-gray-700">Vehicle Information</h4>
-                        <div>Type: {selectedRequest.vehicle.vehicleType}</div>
-                        <div>Plate: {selectedRequest.vehicle.plateCode} {selectedRequest.vehicle.plateNumber}</div>
-                        <div>Color: {selectedRequest.vehicle.color}</div>
-                      </div>
-                    </div>
-
-                    {selectedRequest.mechanic && (
-                      <div className="p-3 bg-blue-50 rounded-lg">
-                        <h4 className="font-medium text-blue-700 mb-1">Assigned Mechanic</h4>
-                        <div className="text-sm text-blue-600">
-                          {selectedRequest.mechanic.firstName} {selectedRequest.mechanic.lastName}
-                          {selectedRequest.mechanic.phoneNumber && (
-                            <div>Phone: {selectedRequest.mechanic.phoneNumber}</div>
-                          )}
-                        </div>
+                        )}
                       </div>
                     )}
+                  </div>
+                )}
+              </div>
+            )}
 
-                    {['ACCEPTED', 'IN_PROGRESS'].includes(selectedRequest.status) && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-purple-700 font-medium">Track detailed progress</span>
+            {activeTab === 'feedback' && (
+              <div>
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <div className="text-4xl mb-4">⭐</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Share Your Experience
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Help other customers by rating the garages you&apos;ve used.
+                  </p>
+
+                  <div className="mt-4 text-center">
+                    <button
+                      onClick={() => router.push('/customer/garages')}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"
+                    >
+                      Find Garages to Review
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'notifications' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Notifications ({notifications.filter(n => !n.read).length} unread)
+                  </h2>
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <button
+                      onClick={() => markNotificationsAsRead(notifications.filter(n => !n.read).map(n => n.id))}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Mark All Read
+                    </button>
+                  )}
+                </div>
+                
+                {notifications.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <div className="text-4xl mb-4">🔔</div>
+                    <p className="text-gray-600">No notifications yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`border rounded-lg p-4 ${
+                          notification.read ? 'bg-gray-50 border-gray-200' : 'bg-blue-50 border-blue-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
+                          <span className="text-xs text-gray-500">
+                            {formatDateTime(new Date(notification.createdAt))}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700">{notification.message}</p>
+                        <div className="text-xs text-gray-500 mt-1">
+                          From: {notification.sender.firstName} {notification.sender.lastName}
+                        </div>
+                        {!notification.read && (
                           <button
-                            onClick={() => {
-                              setActiveTab('tracking');
-                              setSelectedServiceRequest(selectedRequest.id);
-                              setSelectedRequest(null);
-                            }}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
+                            onClick={() => markNotificationsAsRead([notification.id])}
+                            className="text-xs text-blue-600 hover:text-blue-500 mt-2"
                           >
-                            View Progress
+                            Mark as read
                           </button>
-                        </div>
+                        )}
                       </div>
-                    )}
-
-                    {canCancelRequest(selectedRequest) && (
-                      <div className="pt-4 border-t border-gray-200">
-                        <button
-                          onClick={() => handleCancelRequest(selectedRequest.id)}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium"
-                        >
-                          Cancel Request
-                        </button>
-                      </div>
-                    )}
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </main>
+
+      {showPaymentForm && selectedPaymentRequest && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Make Payment - Request #{selectedPaymentRequest.id}
+                </h3>
+                <button
+                  onClick={() => setShowPaymentForm(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <PaymentForm
+                serviceRequestId={selectedPaymentRequest.id}
+                amount={0}
+                description={`Payment for Service Request #${selectedPaymentRequest.id}`}
+                onSubmitSuccess={handlePaymentSuccess}
+                onCancel={() => setShowPaymentForm(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInvoiceDisplay && selectedInvoiceId !== null && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Invoice Details
+                </h3>
+                <button
+                  onClick={() => setShowInvoiceDisplay(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <InvoiceDisplay
+                invoiceId={selectedInvoiceId}
+                onClose={() => setShowInvoiceDisplay(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedRequest && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Service Request #{selectedRequest.id}
+                </h3>
+                <button
+                  onClick={() => setSelectedRequest(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-700">Status:</span>
+                  {getStatusBadge(selectedRequest.status)}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-gray-700">Garage Information</h4>
+                    <div>Name: {selectedRequest.garage.garageName}</div>
+                    <div>Request Date: {formatDateTime(new Date(selectedRequest.createdAt))}</div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-gray-700">Vehicle Information</h4>
+                    <div>Type: {selectedRequest.vehicle.vehicleType}</div>
+                    <div>Plate: {selectedRequest.vehicle.plateCode} {selectedRequest.vehicle.plateNumber}</div>
+                    <div>Color: {selectedRequest.vehicle.color}</div>
+                  </div>
+                </div>
+
+                {selectedRequest.mechanic && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-700 mb-1">Assigned Mechanic</h4>
+                    <div className="text-sm text-blue-600">
+                      {selectedRequest.mechanic.firstName} {selectedRequest.mechanic.lastName}
+                      {selectedRequest.mechanic.phoneNumber && (
+                        <div>Phone: {selectedRequest.mechanic.phoneNumber}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {['ACCEPTED', 'IN_PROGRESS'].includes(selectedRequest.status) && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-purple-700 font-medium">Track detailed progress</span>
+                      <button
+                        onClick={() => {
+                          setActiveTab('tracking');
+                          setSelectedServiceRequest(selectedRequest.id);
+                          setSelectedRequest(null);
+                        }}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
+                      >
+                        View Progress
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {canCancelRequest(selectedRequest) && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => handleCancelRequest(selectedRequest.id)}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium"
+                    >
+                      Cancel Request
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1002,114 +925,107 @@ function ServiceTrackingTimeline({
               )}
             </div>
 
-            {/* Content */}
             <div className="flex-1 min-w-0">
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      status.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {status.approved ? 'Approved' : 'Pending Your Approval'}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {formatDateTime(new Date(status.createdAt))}
-                    </span>
-                  </div>
+              <div className="mb-4">
+                <div className="flex items-center space-x-3">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    status.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {status.approved ? 'Approved' : 'Pending Approval'}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {formatDateTime(new Date(status.createdAt))}
+                  </span>
                 </div>
+                <h3 className="text-lg font-medium text-gray-900 mt-2">{status.description}</h3>
+              </div>
 
-                <p className="text-gray-900 mb-3">{status.description}</p>
-                
-                {/* Approval buttons */}
-                {!status.approved && (
-                  <div className="flex space-x-2 mb-4">
-                    <button
-                      onClick={() => onApproveStatus(status.id, true)}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-                    >
-                      ✓ Approve Update
-                    </button>
-                    <button
-                      onClick={() => onApproveStatus(status.id, false)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-                    >
-                      ✗ Decline
-                    </button>
-                  </div>
-                )}
+              {/* Approval buttons */}
+              {!status.approved && (
+                <div className="flex space-x-2 mb-4">
+                  <button
+                    onClick={() => onApproveStatus(status.id, true)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => onApproveStatus(status.id, false)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
 
-                {/* Ongoing Services */}
-                {status.ongoingServices.length > 0 && (
-                  <div className="mb-4">
-                    <h5 className="text-sm font-medium text-gray-700 mb-2">Services Being Performed:</h5>
-                    <div className="space-y-2">
-                      {status.ongoingServices.map((service) => (
-                        <div key={service.id} className="bg-blue-50 p-3 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="font-medium text-blue-900">{service.service.serviceName}</div>
-                              <div className="text-sm text-blue-700">
-                                Expected: {new Date(service.expectedDate).toLocaleDateString()} • ${service.totalPrice}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {service.serviceFinished ? (
-                                <span className="text-green-600 font-medium text-sm">✓ Completed</span>
-                              ) : (
-                                <span className="text-blue-600 font-medium text-sm">🔄 In Progress</span>
-                              )}
-                            </div>
+              {/* Ongoing Services */}
+              {status.ongoingServices.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-medium text-gray-700 mb-2">Ongoing Services:</h4>
+                  <div className="space-y-2">
+                    {status.ongoingServices.map((service) => (
+                      <div key={service.id} className="bg-blue-50 p-3 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-blue-900">{service.service.serviceName}</p>
+                            <p className="text-sm text-blue-700">Price: ${service.service.estimatedPrice}</p>
+                          </div>
+                          <div className="text-right">
+                            {service.serviceFinished ? (
+                              <span className="text-green-600 font-medium text-sm">✓ Completed</span>
+                            ) : (
+                              <span className="text-blue-600 font-medium text-sm">⏳ In Progress</span>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Additional Services */}
-                {status.additionalServices.length > 0 && (
-                  <div>
-                    <h5 className="text-sm font-medium text-gray-700 mb-2">Additional Service Requests:</h5>
-                    <div className="space-y-2">
-                      {status.additionalServices.map((service) => (
-                        <div key={service.id} className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <div className="font-medium text-orange-900">{service.service.serviceName}</div>
-                              <div className="text-sm text-orange-700">
-                                Additional cost: ${service.totalPrice}
-                              </div>
-                            </div>
+              {/* Additional Services */}
+              {status.additionalServices.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-700 mb-2">Additional Services Requested:</h4>
+                  <div className="space-y-2">
+                    {status.additionalServices.map((service) => (
+                      <div key={service.id} className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="font-medium text-orange-900">{service.service.serviceName}</p>
+                            <p className="text-sm text-orange-700">Price: ${service.totalPrice}</p>
+                            <p className="text-sm text-gray-600 mt-1">Additional service requested by mechanic</p>
                           </div>
-                          
+
                           {!service.approved && (
                             <div className="flex space-x-2 mt-3">
                               <button
                                 onClick={() => onApproveAdditionalService(service.id, true)}
-                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                                className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs"
                               >
-                                ✓ Approve (${service.totalPrice})
+                                Approve
                               </button>
                               <button
                                 onClick={() => onApproveAdditionalService(service.id, false)}
-                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                                className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
                               >
-                                ✗ Decline
+                                Reject
                               </button>
                             </div>
                           )}
 
                           {service.approved && (
                             <div className="mt-2">
-                              <span className="text-green-600 font-medium text-sm">✓ Approved by you</span>
+                              <span className="text-green-600 font-medium text-sm">✓ Approved</span>
                             </div>
                           )}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1122,10 +1038,7 @@ export default function CustomerDashboard() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
+        <LoadingSpinner size="xl" />
       </div>
     }>
       <CustomerDashboardContent />
