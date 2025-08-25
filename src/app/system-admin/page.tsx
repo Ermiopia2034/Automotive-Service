@@ -256,31 +256,6 @@ export default function SystemAdminDashboard() {
             </div>
           </div>
 
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">🚀 Milestone 7 Complete: Enhanced Admin Dashboards!</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-              <div>
-                <strong>✅ New Admin Features:</strong>
-                <ul className="mt-2 space-y-1">
-                  <li>• Comprehensive user management system</li>
-                  <li>• Advanced garage control & monitoring</li>
-                  <li>• User feedback & rating oversight</li>
-                  <li>• Bulk operations & moderation tools</li>
-                  <li>• Analytics & performance insights</li>
-                </ul>
-              </div>
-              <div>
-                <strong>📊 Enhanced Capabilities:</strong>
-                <ul className="mt-2 space-y-1">
-                  <li>• ✓ Role-based user type management</li>
-                  <li>• ✓ Garage approval & removal controls</li>
-                  <li>• ✓ Content moderation & review</li>
-                  <li>• ✓ Real-time statistics & monitoring</li>
-                  <li>• ✓ Administrative audit trails</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>

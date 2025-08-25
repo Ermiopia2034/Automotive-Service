@@ -406,31 +406,6 @@ export default function GarageAdminDashboard() {
                 </div>
               </div>
 
-              <div className="mt-8 bg-indigo-50 border border-indigo-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-indigo-900 mb-3">🚀 Milestone 7: Advanced Mechanic Management!</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-indigo-800">
-                  <div>
-                    <strong>🆕 New Management Features:</strong>
-                    <ul className="mt-2 space-y-1">
-                      <li>• Comprehensive mechanic performance tracking</li>
-                      <li>• Performance grading system (A+ to D)</li>
-                      <li>• Customer satisfaction metrics</li>
-                      <li>• Real-time activity monitoring</li>
-                      <li>• Advanced review & approval system</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>📊 Enhanced Capabilities:</strong>
-                    <ul className="mt-2 space-y-1">
-                      <li>• ✓ Service completion rate tracking</li>
-                      <li>• ✓ Customer rating aggregation</li>
-                      <li>• ✓ Recent activity analysis (30 days)</li>
-                      <li>• ✓ Bulk mechanic status management</li>
-                      <li>• ✓ Performance-based reviews</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
