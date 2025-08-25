@@ -297,12 +297,12 @@ function RequestServiceContent() {
                     id="vehicle"
                     value={selectedVehicle || ''}
                     onChange={(e) => setSelectedVehicle(e.target.value ? parseInt(e.target.value) : null)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                     required
                   >
-                    <option value="">Choose a vehicle</option>
+                    <option value="" className="text-gray-900">Choose a vehicle</option>
                     {vehicles.map((vehicle) => (
-                      <option key={vehicle.id} value={vehicle.id}>
+                      <option key={vehicle.id} value={vehicle.id} className="text-gray-900">
                         {vehicle.vehicleType} - {vehicle.plateCode} {vehicle.plateNumber} ({vehicle.color})
                       </option>
                     ))}
@@ -332,7 +332,7 @@ function RequestServiceContent() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe the issue with your vehicle or specify the type of service needed..."
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
