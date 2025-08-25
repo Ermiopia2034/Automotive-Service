@@ -460,15 +460,15 @@ export default function CustomerGarages() {
 
                     {selectedGarage.services.length > 0 && (
                       <div>
-                        <h4 className="font-medium text-gray-700 mb-2">Available Services:</h4>
+                        <h4 className="font-semibold text-gray-900 mb-3">Available Services:</h4>
                         <div className="space-y-2">
                           {selectedGarage.services.map((garageService) => (
                             <div
                               key={garageService.service.id}
-                              className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                              className="flex justify-between items-center p-3 bg-white border border-gray-200 rounded-lg shadow-sm"
                             >
-                              <span>{garageService.service.serviceName}</span>
-                              <span className="text-green-600 font-medium">
+                              <span className="font-medium text-gray-900">{garageService.service.serviceName}</span>
+                              <span className="text-green-700 font-semibold">
                                 ${garageService.service.estimatedPrice.toFixed(2)}
                               </span>
                             </div>
