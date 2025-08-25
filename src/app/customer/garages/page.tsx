@@ -430,30 +430,30 @@ export default function CustomerGarages() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium text-gray-700">Rating:</span>
-                        <span className="ml-2">{formatRating(selectedGarage.rating)}</span>
+                        <span className="font-semibold text-gray-900">Rating:</span>
+                        <span className="ml-2 font-medium text-gray-800">{formatRating(selectedGarage.rating)}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Mechanics:</span>
-                        <span className="ml-2">{selectedGarage.mechanicsCount}</span>
+                        <span className="font-semibold text-gray-900">Mechanics:</span>
+                        <span className="ml-2 font-medium text-gray-800">{selectedGarage.mechanicsCount}</span>
                       </div>
                       {selectedGarage.distance && (
                         <>
                           <div>
-                            <span className="font-medium text-gray-700">Distance:</span>
-                            <span className="ml-2">{formatDistance(selectedGarage.distance)}</span>
+                            <span className="font-semibold text-gray-900">Distance:</span>
+                            <span className="ml-2 font-medium text-green-700">{formatDistance(selectedGarage.distance)}</span>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700">Est. Travel:</span>
-                            <span className="ml-2">{estimateTravelTime(selectedGarage.distance)}</span>
+                            <span className="font-semibold text-gray-900">Est. Travel:</span>
+                            <span className="ml-2 font-medium text-blue-700">{estimateTravelTime(selectedGarage.distance)}</span>
                           </div>
                         </>
                       )}
                     </div>
 
                     <div>
-                      <span className="font-medium text-gray-700">Owner:</span>
-                      <span className="ml-2">
+                      <span className="font-semibold text-gray-900">Owner:</span>
+                      <span className="ml-2 font-medium text-gray-800">
                         {selectedGarage.admin.firstName} {selectedGarage.admin.lastName}
                       </span>
                     </div>
@@ -480,7 +480,7 @@ export default function CustomerGarages() {
                     {/* Rating Section */}
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-md font-semibold text-gray-900">Customer Reviews</h4>
+                        <h4 className="text-lg font-bold text-gray-900">Customer Reviews</h4>
                         {!showRatingForm && !ratingSubmitted && (
                           <button
                             onClick={() => setShowRatingForm(true)}
